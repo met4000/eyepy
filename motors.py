@@ -15,7 +15,75 @@ def clamp(value: int, min_value: int, max_value: int) -> int:
 
 # SERVOS
 
-# TODO
+def _SERVO_OK(return_code: int) -> bool:
+    """
+    Default servo return code checking behaviour.
+    """
+    return return_code == 0
+
+ServoPort = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
+def clamp_servo_angle(angle: int, *, no_zero = False) -> int:
+    """
+    Clamps the value to within the minimum and maximum servo angle values.
+
+    :param:`no_zero` if `True`, `0` will not be included as a valid value
+    """
+    return clamp(angle, 1 if no_zero else 0, 255)
+
+from eye import SERVOSet as _SERVOSet
+def SERVOSet(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = False) -> bool:
+    """
+    :param:`servos` the servo(s) to set
+    :param:`angle` angle (1 to 255) or power down (0)
+    Note: the docs specify 0 as power down, but in the sim it seems to be a valid angle
+
+    :param:`clamp_angle` if `True` uses :func:`clamp_servo_angle` to clamp :param:`angle`
+
+    Returns `True` if all ok.
+    """
+    if clamp_angle:
+        angle = clamp_servo_angle(angle)
+    
+    if angle < 0 or angle > 255:
+        raise ValueError(f"angle value out of bounds; expected a value from 0 to 255 but got: {angle}")
+    
+    return _repeat_func(servos, lambda servo: _SERVOSet(servo, angle), _SERVO_OK)
+
+from eye import SERVOSetRaw as _SERVOSetRaw
+def SERVOSetRaw(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = False) -> bool:
+    """
+    Bypasses the Hardware Description Table.
+
+    :param:`servos` the servo(s) to set
+    :param:`angle` angle (0 or 1 to 255)
+    Note: the docs specify 0 as power down in :func:`SERVOSet`, but in the sim it seems to be a valid angle
+
+    :param:`clamp_angle` if `True` uses :func:`clamp_servo_angle` to clamp :param:`angle`
+
+    Returns `True` if all ok.
+    """
+    if clamp_angle:
+        angle = clamp_servo_angle(angle)
+    
+    if angle < 0 or angle > 255:
+        raise ValueError(f"angle value out of bounds; expected a value from 0 to 255 but got: {angle}")
+    
+    return _repeat_func(servos, lambda servo: _SERVOSetRaw(servo, angle), _SERVO_OK)
+
+from eye import SERVORange as _SERVORange
+def SERVORange(servos: ServoPort | list[ServoPort], low: int, high: int) -> bool:
+    """
+    "Set servo limits in 1/100 sec"
+
+    :param:`servos` the servo(s) to set
+    :param:`low`
+    :param:`high`
+    TODO: determine what this function does
+
+    Returns `True` if all ok.
+    """
+    return _repeat_func(servos, lambda servo: _SERVORange(servo, low, high), _SERVO_OK)
 
 
 # MOTORS
