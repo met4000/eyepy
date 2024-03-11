@@ -1,18 +1,7 @@
-from typing import Callable, Literal, TypeVar
+from typing import Literal
 
+from eyepy.utils import repeat_func, clamp
 
-T = TypeVar("T")
-R = TypeVar("R")
-def _repeat_func(inputs: T | list[T], func: Callable[[T], R], ok_predicate: Callable[[R], bool]) -> bool:
-    input_list: list[T] = inputs if isinstance(inputs, list) else [inputs]
-    return_codes = [func(input) for input in input_list]
-    return all(ok_predicate(code) for code in return_codes)
-
-def clamp(value: int, min_value: int, max_value: int) -> int:
-    """
-    Clamps the value within the min and max values, inclusive.
-    """
-    return max(min_value, min(max_value, value))
 
 # SERVOS
 
@@ -49,7 +38,7 @@ def SERVOSet(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = F
     if angle < 0 or angle > 255:
         raise ValueError(f"angle value out of bounds; expected a value from 0 to 255 but got: {angle}")
     
-    return _repeat_func(servos, lambda servo: _SERVOSet(servo, angle), _SERVO_OK)
+    return repeat_func(servos, lambda servo: _SERVOSet(servo, angle), _SERVO_OK)
 
 from eye import SERVOSetRaw as _SERVOSetRaw
 def SERVOSetRaw(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = False) -> bool:
@@ -70,7 +59,7 @@ def SERVOSetRaw(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle 
     if angle < 0 or angle > 255:
         raise ValueError(f"angle value out of bounds; expected a value from 0 to 255 but got: {angle}")
     
-    return _repeat_func(servos, lambda servo: _SERVOSetRaw(servo, angle), _SERVO_OK)
+    return repeat_func(servos, lambda servo: _SERVOSetRaw(servo, angle), _SERVO_OK)
 
 from eye import SERVORange as _SERVORange
 def SERVORange(servos: ServoPort | list[ServoPort], low: int, high: int) -> bool:
@@ -84,7 +73,7 @@ def SERVORange(servos: ServoPort | list[ServoPort], low: int, high: int) -> bool
 
     Returns `True` if all ok.
     """
-    return _repeat_func(servos, lambda servo: _SERVORange(servo, low, high), _SERVO_OK)
+    return repeat_func(servos, lambda servo: _SERVORange(servo, low, high), _SERVO_OK)
 
 
 # MOTORS
@@ -115,7 +104,7 @@ def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed =
     if speed < -100 or speed > 100:
         raise ValueError(f"speed value out of bounds; expected a value from -100 to 100 but got: {speed}")
     
-    return _repeat_func(motors, lambda motor: _MOTORDrive(motor, speed), _MOTOR_OK)
+    return repeat_func(motors, lambda motor: _MOTORDrive(motor, speed), _MOTOR_OK)
 
 from eye import MOTORDriveRaw as _MOTORDriveRaw
 def MOTORDriveRaw(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed = False) -> bool:
@@ -134,7 +123,7 @@ def MOTORDriveRaw(motors: MotorPort | list[MotorPort], speed: int, *, clamp_spee
     if speed < -100 or speed > 100:
         raise ValueError(f"speed value out of bounds; expected a value from -100 to 100 but got: {speed}")
     
-    return _repeat_func(motors, lambda motor: _MOTORDriveRaw(motor, speed), _MOTOR_OK)
+    return repeat_func(motors, lambda motor: _MOTORDriveRaw(motor, speed), _MOTOR_OK)
 
 # MotorPIDOutOfBounds
 
@@ -153,7 +142,7 @@ def MOTORPID(motors: MotorPort | list[MotorPort], p: int, i: int, d: int) -> boo
         if v < 0 or v > 255:
             raise ValueError(f"PID controller values out of bounds; expected values from 0 to 255 but got p: {p}, i: {i}, d: {d}")
     
-    return _repeat_func(motors, lambda motor: _MOTORPID(motor, p, i, d), _MOTOR_OK)
+    return repeat_func(motors, lambda motor: _MOTORPID(motor, p, i, d), _MOTOR_OK)
 
 from eye import MOTORPIDOff as _MOTORPIDOff
 def MOTORPIDOff(motors: MotorPort | list[MotorPort]) -> bool:
@@ -162,7 +151,7 @@ def MOTORPIDOff(motors: MotorPort | list[MotorPort]) -> bool:
 
     Returns `True` if all ok.
     """
-    return _repeat_func(motors, lambda motor: _MOTORPIDOff(motor), _MOTOR_OK)
+    return repeat_func(motors, lambda motor: _MOTORPIDOff(motor), _MOTOR_OK)
 
 from eye import MOTORSpeed as _MOTORSpeed
 def MOTORSpeed(motors: MotorPort | list[MotorPort], ticks: int) -> bool:
@@ -172,7 +161,7 @@ def MOTORSpeed(motors: MotorPort | list[MotorPort], ticks: int) -> bool:
 
     Returns `True` if all ok.
     """
-    return _repeat_func(motors, lambda motor: _MOTORSpeed(motor, ticks), _MOTOR_OK)
+    return repeat_func(motors, lambda motor: _MOTORSpeed(motor, ticks), _MOTOR_OK)
 
 
 # ENCODERS
