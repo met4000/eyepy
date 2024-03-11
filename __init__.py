@@ -32,7 +32,7 @@ from eye import QQVGA_Y, QVGA_Y, VGA_Y, CAM1MP_Y, CAMHD_Y, CAM5MP_Y
 
 # TODO servos and motors
 
-from VW import *
+from v_omega import *
 
 # TODO digital and analog i/o
 
