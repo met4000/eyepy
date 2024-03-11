@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import NamedTuple, Optional
 
 
 _lidar_range = 360
@@ -53,8 +52,7 @@ def LIDARSet(*, range: Optional[int] = None, tilt: Optional[int] = None, n_point
     if n_points is not None:
         _lidar_n_points = n_points
 
-@dataclass
-class LIDARConfig(tuple[int, int, int] if TYPE_CHECKING else object):
+class LIDARConfig(NamedTuple):
     range: int
     """degrees, centred forwards"""
 
@@ -63,9 +61,6 @@ class LIDARConfig(tuple[int, int, int] if TYPE_CHECKING else object):
 
     n_points: int
     """the number of point in and returned by the scan"""
-
-    def __iter__(self):
-        return iter((self.range, self.tilt, self.n_points))
 
 def LIDARGetConfig() -> LIDARConfig:
     return LIDARConfig(range=_lidar_range, tilt=_lidar_tilt, n_points=_lidar_n_points)

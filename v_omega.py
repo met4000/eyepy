@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import NamedTuple
 
 from eyepy.motors import MOTORDrive
 
@@ -35,8 +34,7 @@ def VWSetPosition(*, x: int, y: int, phi: int) -> bool:
     return_code = _VWSetPosition(x, y, phi)
     return _VW_OK(return_code)
 
-@dataclass
-class VWPosition(tuple[int, int, int] if TYPE_CHECKING else object):
+class VWPosition(NamedTuple):
     x: int
     """mm"""
 
@@ -45,9 +43,6 @@ class VWPosition(tuple[int, int, int] if TYPE_CHECKING else object):
 
     phi: int
     """degrees"""
-
-    def __iter__(self):
-        return iter((self.x, self.y, self.phi))
 
 from eye import VWGetPosition as _VWGetPosition
 def VWGetPosition() -> VWPosition:

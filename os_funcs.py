@@ -1,8 +1,7 @@
 import ctypes
-from dataclasses import dataclass
 import datetime
 import time
-from typing import TYPE_CHECKING, Callable, Literal
+from typing import Callable, Literal, NamedTuple
 
 from eye import lib
 
@@ -76,15 +75,11 @@ def OSDetachTimer(timer: Timer) -> bool:
     return_code = _OSDetachTimer(timer)
     return _TIMER_OK(return_code)
 
-@dataclass
-class OSTime(tuple[int, int, int, int] if TYPE_CHECKING else object):
+class OSTime(NamedTuple):
     hours: int
     mins: int
     secs: int
     ms: int
-
-    def __iter__(self):
-        return iter((self.hours, self.mins, self.secs, self.ms))
 
 lib.OSGetTime.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
 def OSGetTime() -> OSTime:
