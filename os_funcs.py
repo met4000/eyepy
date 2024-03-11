@@ -1,6 +1,7 @@
 import ctypes
 from dataclasses import dataclass
 import datetime
+import time
 from typing import Callable, Literal
 
 from eye import lib
@@ -54,10 +55,12 @@ def _TIMER_OK(return_code: int) -> bool:
     """
     return return_code == 0
 
-from eye import OSWait as _OSWait
 def OSWait(ms: int) -> bool:
-    return_code = _OSWait(ms)
-    return _TIMER_OK(return_code)
+    # Note: eyesim's `OSWait` seems to use `usleep`, which stops
+    # working after the core timer has been initialised, so this
+    # has an alternate implementation using `time.sleep`
+    time.sleep(ms / 1000)
+    return True
 
 Timer = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17] # from testing, the timer count does not seem to be able to exceed 17
 
