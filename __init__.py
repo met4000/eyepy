@@ -20,16 +20,16 @@ from eye import QQVGA_Y, QVGA_Y, VGA_Y, CAM1MP_Y, CAMHD_Y, CAM5MP_Y
 
 # TODO image processing
 
-from os_funcs import *
+from eyepy.os_funcs import *
 
 # TODO usb/serial
 
 # TODO audio
 
-from psd import *
-from lidar import *
-from motors import *
-from v_omega import *
+from eyepy.psd import *
+from eyepy.lidar import *
+from eyepy.motors import *
+from eyepy.v_omega import *
 
 # TODO digital and analog i/o
 
