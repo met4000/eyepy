@@ -20,9 +20,7 @@ from eye import QQVGA_Y, QVGA_Y, VGA_Y, CAM1MP_Y, CAMHD_Y, CAM5MP_Y
 
 # TODO image processing
 
-# TODO system functions
-
-# TODO timer
+from os_funcs import *
 
 # TODO usb/serial
 
