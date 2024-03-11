@@ -2,7 +2,7 @@ import ctypes
 from dataclasses import dataclass
 import datetime
 import time
-from typing import Callable, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 from eye import lib
 
@@ -77,7 +77,7 @@ def OSDetachTimer(timer: Timer) -> bool:
     return _TIMER_OK(return_code)
 
 @dataclass
-class OSTime:
+class OSTime(tuple[int, int, int, int] if TYPE_CHECKING else object):
     hours: int
     mins: int
     secs: int

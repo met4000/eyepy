@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 
 _lidar_range = 360
@@ -54,7 +54,7 @@ def LIDARSet(*, range: Optional[int] = None, tilt: Optional[int] = None, n_point
         _lidar_n_points = n_points
 
 @dataclass
-class LIDARConfig:
+class LIDARConfig(tuple[int, int, int] if TYPE_CHECKING else object):
     range: int
     """degrees, centred forwards"""
 
