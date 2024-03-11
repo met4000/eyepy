@@ -125,8 +125,6 @@ def MOTORDriveRaw(motors: MotorPort | list[MotorPort], speed: int, *, clamp_spee
     
     return repeat_func(motors, lambda motor: _MOTORDriveRaw(motor, speed), _MOTOR_OK)
 
-# MotorPIDOutOfBounds
-
 from eye import MOTORPID as _MOTORPID
 def MOTORPID(motors: MotorPort | list[MotorPort], p: int, i: int, d: int) -> bool:
     """
@@ -162,6 +160,33 @@ def MOTORSpeed(motors: MotorPort | list[MotorPort], ticks: int) -> bool:
     Returns `True` if all ok.
     """
     return repeat_func(motors, lambda motor: _MOTORSpeed(motor, ticks), _MOTOR_OK)
+
+# extra motor funcs
+
+def MOTORDualDrive(left_motor: MotorPort, right_motor: MotorPort, *, speed: float = 0, offset: float = 0, overflow_coeff: float = 0.0):
+    """
+    `left speed = speed - offset`, `right speed = speed + offset`
+
+    Non-zero :param:`overflow_coeff` will cause overflow to reduce the speed of the other motor.
+    E.g. for `speed = 80`, `offset = 40`, `overflow_coeff = 0.5`, the left motor speed would
+    initially be `120` and the right motor speed `40`, then the left overflow (`20`) would change
+    the speed of the right motor (`40 - 20 * 0.5 => 30`).
+
+    Both overflows are computed and applied simultaneously (they won't contribute to the other overflow),
+    and the values after applying the overflows are clamped.
+    """
+    left_speed = speed - offset
+    right_speed = speed + offset
+
+    left_overflow = max(0, abs(left_speed) - 100) * (1 if left_speed > 0 else -1)
+    right_overflow = max(0, abs(right_speed) - 100) * (1 if right_speed > 0 else -1)
+
+    left_speed = round(left_speed - right_overflow * overflow_coeff)
+    right_speed = round(right_speed - left_overflow * overflow_coeff)
+
+    left_ok = MOTORDrive(left_motor, left_speed, clamp_speed=True)
+    right_ok = MOTORDrive(right_motor, right_speed, clamp_speed=True)
+    return left_ok and right_ok
 
 
 # ENCODERS
