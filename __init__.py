@@ -29,7 +29,7 @@ from eye import QQVGA_Y, QVGA_Y, VGA_Y, CAM1MP_Y, CAMHD_Y, CAM5MP_Y
 # TODO audio
 
 from psd import *
-# from lidar import *
+from lidar import *
 from motors import *
 from v_omega import *
 
