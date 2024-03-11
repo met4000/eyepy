@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 def _VW_OK(return_code: int) -> bool:
     """
     Default VW return code checking behaviour

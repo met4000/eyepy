@@ -1,5 +1,6 @@
 from typing import Callable, Literal, TypeVar
 
+
 T = TypeVar("T")
 R = TypeVar("R")
 def _repeat_func(inputs: T | list[T], func: Callable[[T], R], ok_predicate: Callable[[R], bool]) -> bool:
