@@ -30,8 +30,7 @@ from eye import QQVGA_Y, QVGA_Y, VGA_Y, CAM1MP_Y, CAMHD_Y, CAM5MP_Y
 
 # TODO distance sensors
 
-# TODO servos and motors
-
+from motors import *
 from v_omega import *
 
 # TODO digital and analog i/o
