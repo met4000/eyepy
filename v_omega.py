@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from eyepy.motors import MOTORDrive
+
 
 def _VW_OK(return_code: int) -> bool:
     """
@@ -133,3 +135,9 @@ def VWStalled() -> tuple[bool, bool]:
     left_stalled = (state & 0b01) != 0
     right_stalled = (state & 0b10) != 0
     return left_stalled, right_stalled
+
+
+# extra funcs
+
+def VWStop() -> bool:
+    return MOTORDrive([1, 2], 0)
