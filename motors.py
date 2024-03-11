@@ -176,4 +176,18 @@ def MOTORSpeed(motors: MotorPort | list[MotorPort], ticks: int) -> bool:
 
 # ENCODERS
 
-# TODO
+EncoderPort = MotorPort
+
+from eye import ENCODERRead as _ENCODERRead
+def ENCODERRead(encoder: EncoderPort) -> int:
+    return _ENCODERRead(encoder)
+
+from eye import ENCODERReset as _ENCODERReset
+def ENCODERReset(encoder: EncoderPort) -> bool:
+    """
+    TODO check the return value; currently assumes `0` is non-error, and any other value implies a failure
+
+    Returns `True` if ok.
+    """
+    return_code = _ENCODERReset(encoder)
+    return return_code == 0
