@@ -93,9 +93,8 @@ def OSGetTime() -> OSTime:
     secs = ctypes.c_int()
     ms = ctypes.c_int()
     
-    result: int = lib.OSGetTime(ctypes.pointer(hours), ctypes.pointer(mins), ctypes.pointer(secs), ctypes.pointer(ms))
-    if result != 0:
-        raise RuntimeError()
+    return_code: int = lib.OSGetTime(ctypes.pointer(hours), ctypes.pointer(mins), ctypes.pointer(secs), ctypes.pointer(ms))
+    if return_code != 0: raise RuntimeError()
     
     return OSTime(hours=hours.value, mins=mins.value, secs=secs.value, ms=ms.value)
 
@@ -109,7 +108,7 @@ def OSGetTimePy() -> datetime.time:
 
 
 # It seems like OSGetCount requires a call to `TIMInitialise_core_timer` before
-# it will start counting. OSAttachTimer calls this, so we attach and then detach
+# it will start counting. `OSAttachTimer` calls this, so we attach and then detach
 # a dummy function to initialise the timer (approximately) as the program starts
 OSDetachTimer(OSAttachTimer(1000, type(None)))
 
