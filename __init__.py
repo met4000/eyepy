@@ -1,10 +1,7 @@
 """Wrapper around `eye` module, adding types and input checking."""
 
 from eyepy.lcd import *
-
-# TODO keys
-from eye import KEYGet, KEYRead, KEYWait, KEYGetXY, KEYReadXY
-from eye import KEY1, KEY2, KEY3, KEY4, ANYKEY, NOKEY
+from eyepy.keys import *
 
 # TODO camera
 from eye import CAMInit, CAMRelease, CAMGet, CAMGetGray
