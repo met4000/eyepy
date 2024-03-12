@@ -1,9 +1,6 @@
 """Wrapper around `eye` module, adding types and input checking."""
 
-# TODO LCD
-from eye import LCDPrintf, LCDSetPrintf, LCDClear, LCDSetPos, LCDGetPos, LCDSetColor, LCDSetFont, LCDSetMode # ? no LCDFontSize
-from eye import HELVETICA, TIMES, COURIER, NORMAL, BOLD
-from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
+from eyepy.lcd import *
 
 # TODO keys
 from eye import KEYGet, KEYRead, KEYWait, KEYGetXY, KEYReadXY
