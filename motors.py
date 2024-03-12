@@ -13,7 +13,7 @@ def _SERVO_OK(return_code: int) -> bool:
 
 ServoPort = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
-def clamp_servo_angle(angle: int, *, no_zero = False) -> int:
+def clamp_servo_angle(angle: int, *, no_zero: bool = False) -> int:
     """
     Clamps the value to within the minimum and maximum servo angle values.
 
@@ -22,7 +22,7 @@ def clamp_servo_angle(angle: int, *, no_zero = False) -> int:
     return clamp(angle, 1 if no_zero else 0, 255)
 
 from eye import SERVOSet as _SERVOSet
-def SERVOSet(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = False) -> bool:
+def SERVOSet(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle: bool = False) -> bool:
     """
     :param:`servos` the servo(s) to set
     :param:`angle` angle (1 to 255) or power down (0)
@@ -41,7 +41,7 @@ def SERVOSet(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = F
     return repeat_func(servos, lambda servo: _SERVOSet(servo, angle), _SERVO_OK)
 
 from eye import SERVOSetRaw as _SERVOSetRaw
-def SERVOSetRaw(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle = False) -> bool:
+def SERVOSetRaw(servos: ServoPort | list[ServoPort], angle: int, *, clamp_angle: bool = False) -> bool:
     """
     Bypasses the Hardware Description Table.
 
@@ -90,7 +90,7 @@ def clamp_motor_speed(speed: int) -> int:
 MotorPort = Literal[1, 2, 3, 4]
 
 from eye import MOTORDrive as _MOTORDrive
-def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed = False) -> bool:
+def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed: bool) -> bool:
     """
     :param:`motor` the motor(s) to drive
     :param:`speed` percentage speed (clamped within -100 to 100)
@@ -107,7 +107,7 @@ def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed =
     return repeat_func(motors, lambda motor: _MOTORDrive(motor, speed), _MOTOR_OK)
 
 from eye import MOTORDriveRaw as _MOTORDriveRaw
-def MOTORDriveRaw(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed = False) -> bool:
+def MOTORDriveRaw(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed: bool = False) -> bool:
     """
     Bypasses the Hardware Description Table.
 
