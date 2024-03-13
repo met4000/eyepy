@@ -9,6 +9,12 @@ class Point(NamedTuple):
     x: int
     y: int
 
+from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
+Colour = int
+
+def colour_to_str(col: Colour) -> str:
+    return "#%0.6X" % col
+
 
 from eye import CUSTOM as _CUSTOM
 class ImageResolution:

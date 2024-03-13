@@ -4,7 +4,7 @@ from typing import Final, Literal, NamedTuple
 
 from eye import lib
 
-from eyepy.drawing import Point
+from eyepy.drawing import Image, ImageResolution, Colour, Point, colour_to_str
 
 
 def _LCD_OK(return_code: int) -> bool:
@@ -49,19 +49,16 @@ def LCDGetPos() -> LCDPos:
 
     return LCDPos(row=row.value, col=col.value)
 
-from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
-LCDColor = int
-
-def _validate_colours(*cols: LCDColor):
+def _validate_colours(*cols: Colour):
     """
     Throws a `ValueError` if a colour is invalid.
     """
     for col in cols:
         if col < 0x000000 or col > 0xFFFFFF:
-            raise ValueError(f"colour {'0x%0.6X' % col} is not a valid colour (out of bounds)")
+            raise ValueError(f"colour {colour_to_str(col)} is not a valid colour (out of bounds)")
 
 from eye import LCDSetColor as _LCDSetColor
-def LCDSetColor(*, foreground: LCDColor, background: LCDColor, validate_cols: bool = True) -> bool:
+def LCDSetColor(*, foreground: Colour, background: Colour, validate_cols: bool = True) -> bool:
     """
     :param:`foreground` and :param:`background` use RGB hex colour codes,
     e.g. 0x000000 => black, 0xFFFFFF => white.
@@ -128,7 +125,7 @@ def LCDMenu(str1: str, str2: str, str3: str, str4: str) -> bool:
     return _LCD_OK(return_code)
 
 from eye import LCDMenuI as _LCDMenuI
-def LCDMenuI(entry: int, string: str, *, foreground: LCDColor, background: LCDColor, validate_cols: bool = True) -> bool:
+def LCDMenuI(entry: int, string: str, *, foreground: Colour, background: Colour, validate_cols: bool = True) -> bool:
     if validate_cols: _validate_colours(foreground, background)
     return_code = _LCDMenuI(entry, string, foreground, background)
     return _LCD_OK(return_code)
@@ -153,14 +150,14 @@ def LCDGetSize() -> LCDSize:
     return LCDSize(width=width.value, height=height.value)
 
 from eye import LCDPixel as _LCDPixel
-def LCDPixel(pixel: Point | tuple[int, int], col: LCDColor, *, validate_col: bool = True) -> bool:
+def LCDPixel(pixel: Point | tuple[int, int], col: Colour, *, validate_col: bool = True) -> bool:
     if validate_col: _validate_colours(col)
     pixel = Point(*pixel)
     return_code = _LCDPixel(pixel.x, pixel.y, col)
     return _LCD_OK(return_code)
 
 from eye import LCDGetPixel as _LCDGetPixel
-def LCDGetPixel(pixel: Point | tuple[int, int], *, validate: bool = True) -> LCDColor:
+def LCDGetPixel(pixel: Point | tuple[int, int], *, validate: bool = True) -> Colour:
     """
     If :param:`validate` is `True`, a `RuntimeError` will be thrown if
     an invalid colour is returned by `LCDGetPixel`.
@@ -177,7 +174,7 @@ def LCDGetPixel(pixel: Point | tuple[int, int], *, validate: bool = True) -> LCD
     return col
 
 from eye import LCDLine as _LCDLine
-def LCDLine(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: LCDColor, *, validate_col: bool = True) -> bool:
+def LCDLine(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: Colour, *, validate_col: bool = True) -> bool:
     if validate_col: _validate_colours(col)
     p1 = Point(*p1)
     p2 = Point(*p2)
@@ -186,7 +183,7 @@ def LCDLine(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: LCDCo
     return _LCD_OK(return_code)
 
 from eye import LCDArea as _LCDArea
-def LCDArea(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: LCDColor, *, fill: bool = True, validate_col: bool = True) -> bool:
+def LCDArea(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: Colour, *, fill: bool = True, validate_col: bool = True) -> bool:
     if validate_col: _validate_colours(col)
     p1 = Point(*p1)
     p2 = Point(*p2)
@@ -195,7 +192,7 @@ def LCDArea(p1: Point | tuple[int, int], p2: Point | tuple[int, int], col: LCDCo
     return _LCD_OK(return_code)
 
 from eye import LCDCircle as _LCDCircle
-def LCDCircle(centre: Point | tuple[int, int], size: int, col: LCDColor, *, fill: bool = True, validate_col: bool = True) -> bool:
+def LCDCircle(centre: Point | tuple[int, int], size: int, col: Colour, *, fill: bool = True, validate_col: bool = True) -> bool:
     """
     TODO check what 'size' means (radius? diameter?)
     """
@@ -205,15 +202,10 @@ def LCDCircle(centre: Point | tuple[int, int], size: int, col: LCDColor, *, fill
     return_code = _LCDCircle(centre.x, centre.y, size, col, int(fill))
     return _LCD_OK(return_code)
 
-# TODO test image funcs
-# TODO consider making new funcs for image output
-
 from eye import LCDImageSize as _LCDImageSize
-def LCDImageSize(t: int) -> bool:
-    """
-    TODO more advanced documentation and typing
-    """
-    return_code = _LCDImageSize(t)
+def LCDImageSize(resolution: ImageResolution) -> bool:
+    resolution_code = resolution._code
+    return_code = _LCDImageSize(resolution_code)
     return _LCD_OK(return_code)
 
 from eye import LCDImageStart as _LCDImageStart
@@ -222,30 +214,53 @@ def LCDImageStart(start: Point | tuple[int, int], *, width: int, height: int) ->
     return_code = _LCDImageStart(start.x, start.y, width, height)
     return _LCD_OK(return_code)
 
-# `eye.LCDImage` doesn't do anything, so we use `lib.LCDImage`
-def LCDImage(image: list[int]) -> bool:
+# `eye.LCDImage` simply wraps it, so we directly use `lib.LCDImage`
+def LCDImage(image: Image, *, validate: bool = True) -> bool:
     """
-    TODO verify if implementation is correct
+    If :param:`validate` is `True`, will return `False` if the image is not
+    the correct type (e.g. is a gray image). If :param:`validate` is `False`,
+    no attempt to validate the image will be made.
     """
-    image_bytes = (ctypes.c_byte * len(image)).from_buffer_copy(bytes(image))
+    if validate:
+        if image.is_gray:
+            return False
+
+    image_bytes = image._c_bytes
     return_code = lib.LCDImage(image_bytes)
     return _LCD_OK(return_code)
 
-# `eye.LCDImageGray` doesn't do anything, so we use `lib.LCDImageGray`
-def LCDImageGray(image: list[int]) -> bool:
+# `eye.LCDImageGray` simply wraps it, so we directly use `lib.LCDImageGray`
+def LCDImageGray(image: Image, *, validate: bool = True) -> bool:
     """
-    TODO verify if implementation is correct
+    If :param:`validate` is `True`, will return `False` if the image is not
+    the correct type (e.g. is a colour image). If :param:`validate` is `False`,
+    no attempt to validate the image will be made.
     """
-    image_bytes = (ctypes.c_byte * len(image)).from_buffer_copy(bytes(image))
+    if validate:
+        if not image.is_gray:
+            return False
+    
+    image_bytes = image._c_bytes
     return_code = lib.LCDImageGray(image_bytes)
     return _LCD_OK(return_code)
 
-# `eye.LCDImageBinary` doesn't do anything, so we use `lib.LCDImageBinary`
-def LCDImageBinary(image: list[int]) -> bool:
+# `eye.LCDImageBinary` simply wraps it, so we directly use `lib.LCDImageBinary`
+def LCDImageBinary(image: Image, *, validate: bool = True) -> bool:
     """
-    TODO verify if implementation is correct
+    Expects a gray image using only 0 (white) and 1 (black).
+    If :param:`validate` is `True`, will return `False` if the image is not
+    the correct type (e.g. is not binary). If :param:`validate` is `False`,
+    no attempt to validate the image will be made.
+
+    Note: appears to be :func:`LCDImageGray`, but subtracting 1 from each pixel
+    (with 0 - 1 => 255 (white), 1 - 1 => 0 (black), and every other value
+    remaining approximately the same).
     """
-    image_bytes = (ctypes.c_byte * len(image)).from_buffer_copy(bytes(image))
+    if validate:
+        if not image.is_gray:
+            return False
+    
+    image_bytes = image._c_bytes
     return_code = lib.LCDImageBinary(image_bytes)
     return _LCD_OK(return_code)
 
