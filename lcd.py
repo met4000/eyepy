@@ -1,6 +1,6 @@
 import ctypes
 from enum import Enum
-from typing import Final, Literal, NamedTuple
+from typing import Callable, Final, Literal, NamedTuple, Optional, TypeVar
 
 from eye import lib
 
@@ -202,67 +202,101 @@ def LCDCircle(centre: Point | tuple[int, int], size: int, col: Colour, *, fill: 
     return_code = _LCDCircle(centre.x, centre.y, size, col, int(fill))
     return _LCD_OK(return_code)
 
+_image_position: Point = Point(0, 0)
+
 from eye import LCDImageSize as _LCDImageSize
 def LCDImageSize(resolution: ImageResolution) -> bool:
+    """
+    Note: the image size is automatically set when printed by
+    :func:`LCDImage`, :func:`LCDImageGray`, or :func:`LCDImageBinary`;
+    this function does not need to be called manually.
+    """
     resolution_code = resolution._code
     return_code = _LCDImageSize(resolution_code)
     return _LCD_OK(return_code)
 
 from eye import LCDImageStart as _LCDImageStart
 def LCDImageStart(start: Point | tuple[int, int], *, width: int, height: int) -> bool:
+    """
+    Sets default image position and size.
+
+    Note: image size will be overwritten automatically when calls to :func:`LCDImage`,
+    :func:`LCDImageGray`, or :func:`LCDImageBinary` are made.
+    """
     start = Point(*start)
     return_code = _LCDImageStart(start.x, start.y, width, height)
-    return _LCD_OK(return_code)
+    if not _LCD_OK(return_code):
+        return False
+    
+    global _image_position
+    _image_position = start
+    return True
+
+R = TypeVar("R")
+def _lcd_image_print_base(image: Image, *, print_func: Callable[[ctypes.Array[ctypes.c_byte]], R], ok_predicate: Callable[[R], bool], start: Optional[Point | tuple[int, int]]) -> bool:
+    default_position = _image_position
+    if not LCDImageStart(
+        start if start is not None else default_position,
+        width=image.resolution.WIDTH,
+        height=image.resolution.HEIGHT
+    ): return False
+
+    image_bytes = image._c_bytes
+    return_code = print_func(image_bytes)
+
+    if start is not None:
+        if not LCDImageStart(default_position, width=image.resolution.WIDTH, height=image.resolution.HEIGHT):
+            return False
+
+    return ok_predicate(return_code)
 
 # `eye.LCDImage` simply wraps it, so we directly use `lib.LCDImage`
-def LCDImage(image: Image, *, validate: bool = True) -> bool:
+def LCDImage(image: Image, *, start: Optional[Point | tuple[int, int]] = None) -> bool:
     """
-    If :param:`validate` is `True`, will return `False` if the image is not
-    the correct type (e.g. is a gray image). If :param:`validate` is `False`,
-    no attempt to validate the image will be made.
-    """
-    if validate:
-        if image.is_gray:
-            return False
+    Returns `False` if the image is not the correct type (e.g. is a gray image),
+    or if the internal calls to `LCDImageStart` or `LCDImage` return an error value.
 
-    image_bytes = image._c_bytes
-    return_code = lib.LCDImage(image_bytes)
-    return _LCD_OK(return_code)
+    If :param:`start` is specified, it will be used for the image position rather
+    than the current default image position. Does not override the default image position.
+    """
+    if image.is_gray:
+        return False
+    
+    return _lcd_image_print_base(image, print_func=lib.LCDImage, ok_predicate=_LCD_OK, start=start)
 
 # `eye.LCDImageGray` simply wraps it, so we directly use `lib.LCDImageGray`
-def LCDImageGray(image: Image, *, validate: bool = True) -> bool:
+def LCDImageGray(image: Image, *, start: Optional[Point | tuple[int, int]] = None) -> bool:
     """
-    If :param:`validate` is `True`, will return `False` if the image is not
-    the correct type (e.g. is a colour image). If :param:`validate` is `False`,
-    no attempt to validate the image will be made.
+    Returns `False` if the image is not the correct type (e.g. is a colour image),
+    or if the internal calls to `LCDImageStart` or `LCDImageGray` return an error value.
+
+    If :param:`start` is specified, it will be used for the image position rather
+    than the current default image position. Does not override the default image position.
     """
-    if validate:
-        if not image.is_gray:
-            return False
+    if not image.is_gray:
+        return False
     
-    image_bytes = image._c_bytes
-    return_code = lib.LCDImageGray(image_bytes)
-    return _LCD_OK(return_code)
+    return _lcd_image_print_base(image, print_func=lib.LCDImageGray, ok_predicate=_LCD_OK, start=start)
 
 # `eye.LCDImageBinary` simply wraps it, so we directly use `lib.LCDImageBinary`
-def LCDImageBinary(image: Image, *, validate: bool = True) -> bool:
+def LCDImageBinary(image: Image, *, start: Optional[Point | tuple[int, int]] = None) -> bool:
     """
     Expects a gray image using only 0 (white) and 1 (black).
     If :param:`validate` is `True`, will return `False` if the image is not
     the correct type (e.g. is not binary). If :param:`validate` is `False`,
     no attempt to validate the image will be made.
 
+    If :param:`start` is specified, it will be used for the image position rather
+    than the current default image position. Does not override the default image position.
+
     Note: appears to be :func:`LCDImageGray`, but subtracting 1 from each pixel
     (with 0 - 1 => 255 (white), 1 - 1 => 0 (black), and every other value
     remaining approximately the same).
     """
-    if validate:
-        if not image.is_gray:
-            return False
+    if not image.is_gray:
+        return False
     
-    image_bytes = image._c_bytes
-    return_code = lib.LCDImageBinary(image_bytes)
-    return _LCD_OK(return_code)
+    return _lcd_image_print_base(image, print_func=lib.LCDImageBinary, ok_predicate=_LCD_OK, start=start)
 
 from eye import LCDRefresh as _LCDRefresh
 def LCDRefresh() -> bool:
