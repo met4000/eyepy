@@ -71,7 +71,7 @@ class Image(Sequence):
             flat_image = list(itertools.chain.from_iterable(image))
         else:
             flat_image = cast(list[int], image)
-        c_bytes = (ctypes.c_byte * len(flat_image))(flat_image)
+        c_bytes = (ctypes.c_byte * len(flat_image))(*flat_image)
         return Image(c_bytes, gray=gray, resolution=resolution)
     
     @overload
