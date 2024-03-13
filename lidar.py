@@ -1,9 +1,9 @@
 from typing import NamedTuple, Optional
 
 
-_lidar_range = 360
-_lidar_tilt = 0
-_lidar_n_points = 360
+_lidar_range: int = 360
+_lidar_tilt: int = 0
+_lidar_n_points: int = 360
 
 from eye import LIDARGet as _LIDARGet
 def LIDARGet(*, range: Optional[int] = None, tilt: Optional[int] = None, n_points: Optional[int] = None) -> list[int]:

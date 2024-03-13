@@ -4,14 +4,14 @@ from typing import Optional
 
 from eye import lib
 
+from eyepy.drawing import Point
+
 
 # use `None` in place of NOKEY and ANYKEY
 from eye import NOKEY as _NOKEY, ANYKEY as _ANYKEY
 
 # can't use unions of pre-defined literals, so we use enums to get type checking
 from eye import KEY1 as _KEY1, KEY2 as _KEY2, KEY3 as _KEY3, KEY4 as _KEY4
-
-from eyepy.drawing import Point
 class Key(Enum):
     KEY1 = _KEY1
     KEY2 = _KEY2
