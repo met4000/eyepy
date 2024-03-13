@@ -31,12 +31,24 @@ def CAMRelease() -> bool:
 
 from eye import CAMGet as _CAMGet
 def CAMGet() -> Image:
+    """
+    Raises a `ValueError` if the resolution is not set (in testing, segfault-ed if not set).
+    """
+    if _camera_resolution.PIXELS == 0:
+        raise ValueError("resolution not set")
+    
     raw_image = _CAMGet()
     image = Image.from_c_bytes(raw_image, gray=False, resolution=_camera_resolution)
     return image
 
 from eye import CAMGetGray as _CAMGetGray
 def CAMGetGray() -> Image:
+    """
+    Raises a `ValueError` if the resolution is not set (in testing, segfault-ed if not set).
+    """
+    if _camera_resolution.PIXELS == 0:
+        raise ValueError("resolution not set")
+    
     raw_image = _CAMGetGray()
     image = Image.from_c_bytes(raw_image, gray=True, resolution=_camera_resolution)
     return image
