@@ -26,3 +26,6 @@ from eyepy.v_omega import *
 # TODO radio communication
 
 # TODO sim only functions
+
+# new funcs
+from eyepy.drawing import *

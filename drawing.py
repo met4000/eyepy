@@ -15,6 +15,13 @@ Colour = int
 def colour_to_str(col: Colour) -> str:
     return "#%0.6X" % col
 
+def colour_to_tuple(col: Colour) -> tuple[int, int, int]:
+    return (
+        (col & 0xFF0000) // 0x010000,
+        (col & 0x00FF00) // 0x000100,
+        (col & 0x0000FF) // 0x000001
+    )
+
 
 from eye import CUSTOM as _CUSTOM
 class ImageResolution:
@@ -63,22 +70,26 @@ class Image(Sequence):
     
     @overload
     @staticmethod
-    def from_list(image: list[tuple[int, int, int]], *, gray: Literal[False] = False, resolution: ImageResolution) -> Image: ...
+    def from_list(image: Sequence[tuple[int, int, int]], *, gray: Literal[False] = False, resolution: ImageResolution) -> Image: ...
 
     @overload
     @staticmethod
-    def from_list(image: list[int], *, gray: Literal[True], resolution: ImageResolution) -> Image: ...
+    def from_list(image: Sequence[int], *, gray: Literal[True], resolution: ImageResolution) -> Image: ...
 
     @staticmethod
-    def from_list(image: list[tuple[int, int, int]] | list[int], *, gray: bool = False, resolution: ImageResolution) -> Image:
-        flat_image: list[int]
+    def from_list(image: Sequence[tuple[int, int, int]] | Sequence[int], *, gray: bool = False, resolution: ImageResolution) -> Image:
+        flat_image: Sequence[int]
         if not gray:
-            image = cast(list[tuple[int, int, int]], image)
+            image = cast(Sequence[tuple[int, int, int]], image)
             flat_image = list(itertools.chain.from_iterable(image))
         else:
-            flat_image = cast(list[int], image)
+            flat_image = cast(Sequence[int], image)
         c_bytes = (ctypes.c_byte * len(flat_image))(*flat_image)
         return Image(c_bytes, gray=gray, resolution=resolution)
+    
+    @staticmethod
+    def from_colour_list(colour_image: Sequence[int], *, resolution: ImageResolution) -> Image:
+        return Image.from_list(list(map(colour_to_tuple, colour_image)), gray=False, resolution=resolution)
     
     @overload
     def __getitem__(self, __key: int) -> int: ...
