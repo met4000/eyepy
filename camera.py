@@ -7,6 +7,7 @@ def _CAM_OK(return_code: int) -> bool:
     """
     return return_code == 0
 
+from eyepy.drawing import QQVGA, QVGA, VGA, CAM1MP, CAMHD, CAM5MP
 _camera_resolution: ImageResolution = ImageResolution(0, 0)
 
 from eye import CAMInit as _CAMInit
@@ -14,8 +15,8 @@ def CAMInit(resolution: ImageResolution) -> bool:
     """
     `CUSTOM` seems to be unsupported in sim.
     """
-    raw_resolution = resolution._code
-    return_code = _CAMInit(raw_resolution)
+    resolution_code = resolution._code
+    return_code = _CAMInit(resolution_code)
     
     if not _CAM_OK(return_code):
         return False
