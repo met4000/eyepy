@@ -1,6 +1,6 @@
 import ctypes
 from enum import Enum
-from typing import Optional
+from typing import Final, Optional
 
 from eye import lib
 
@@ -17,10 +17,10 @@ class Key(Enum):
     KEY2 = _KEY2
     KEY3 = _KEY3
     KEY4 = _KEY4
-KEY1 = Key.KEY1
-KEY2 = Key.KEY2
-KEY3 = Key.KEY3
-KEY4 = Key.KEY4
+KEY1: Final[Key] = Key.KEY1
+KEY2: Final[Key] = Key.KEY2
+KEY3: Final[Key] = Key.KEY3
+KEY4: Final[Key] = Key.KEY4
 
 from eye import KEYGet as _KEYGet
 def KEYGet() -> Key:

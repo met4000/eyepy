@@ -1,6 +1,6 @@
 import ctypes
 from enum import Enum
-from typing import Literal, NamedTuple
+from typing import Final, Literal, NamedTuple
 
 from eye import lib
 
@@ -78,18 +78,18 @@ class Font(Enum):
     HELVETICA = _HELVETICA
     TIMES = _TIMES
     COURIER = _COURIER
-HELVETICA = Font.HELVETICA
-TIMES = Font.TIMES
-COURIER = Font.COURIER
+HELVETICA: Final[Font] = Font.HELVETICA
+TIMES: Final[Font] = Font.TIMES
+COURIER: Final[Font] = Font.COURIER
 
 from eye import NORMAL as _NORMAL, BOLD as _BOLD, ITALICS as _ITALICS
 class FontVariation(Enum):
     NORMAL = _NORMAL
     BOLD = _BOLD
     ITALICS = _ITALICS
-NORMAL = FontVariation.NORMAL
-BOLD = FontVariation.BOLD
-ITALICS = FontVariation.ITALICS
+NORMAL: Final[FontVariation] = FontVariation.NORMAL
+BOLD: Final[FontVariation] = FontVariation.BOLD
+ITALICS: Final[FontVariation] = FontVariation.ITALICS
 
 from eye import LCDSetFont as _LCDSetFont
 def LCDSetFont(font: Font, variation: FontVariation) -> bool:

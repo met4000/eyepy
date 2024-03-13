@@ -12,28 +12,34 @@ class Point(NamedTuple):
 
 from eye import CUSTOM as _CUSTOM
 class ImageResolution:
+    WIDTH: Final[int]
+    HEIGHT: Final[int]
+    PIXELS: Final[int]
+    SIZE: Final[int]
+    _code: Final[int]
+
     def __init__(self, width: int, height: int, _code: int = _CUSTOM):
         """
         :param:`_code` should not be used.
         """
-        self.WIDTH: int = width
-        self.HEIGHT: int = height
-        self.PIXELS: int = self.WIDTH * self.HEIGHT
-        self.SIZE: int = self.PIXELS * 3
-        self._code: int = _code
+        self.WIDTH = width
+        self.HEIGHT = height
+        self.PIXELS = self.WIDTH * self.HEIGHT
+        self.SIZE = self.PIXELS * 3
+        self._code = _code
 
 from eye import QQVGA as _QQVGA, QQVGA_X as _QQVGA_X, QQVGA_Y as _QQVGA_Y
-QQVGA = ImageResolution(_QQVGA_X, _QQVGA_Y, _QQVGA)
+QQVGA: Final[ImageResolution] = ImageResolution(_QQVGA_X, _QQVGA_Y, _QQVGA)
 from eye import QVGA as _QVGA, QVGA_X as _QVGA_X, QVGA_Y as _QVGA_Y
-QVGA = ImageResolution(_QVGA_X, _QVGA_Y, _QVGA)
+QVGA: Final[ImageResolution] = ImageResolution(_QVGA_X, _QVGA_Y, _QVGA)
 from eye import VGA as _VGA, VGA_X as _VGA_X, VGA_Y as _VGA_Y
-VGA = ImageResolution(_VGA_X, _VGA_Y, _VGA)
+VGA: Final[ImageResolution] = ImageResolution(_VGA_X, _VGA_Y, _VGA)
 from eye import CAM1MP as _CAM1MP, CAM1MP_X as _CAM1MP_X, CAM1MP_Y as _CAM1MP_Y
-CAM1MP = ImageResolution(_CAM1MP_X, _CAM1MP_Y, _CAM1MP)
+CAM1MP: Final[ImageResolution] = ImageResolution(_CAM1MP_X, _CAM1MP_Y, _CAM1MP)
 from eye import CAMHD as _CAMHD, CAMHD_X as _CAMHD_X, CAMHD_Y as _CAMHD_Y
-CAMHD = ImageResolution(_CAMHD_X, _CAMHD_Y, _CAMHD)
+CAMHD: Final[ImageResolution] = ImageResolution(_CAMHD_X, _CAMHD_Y, _CAMHD)
 from eye import CAM5MP as _CAM5MP, CAM5MP_X as _CAM5MP_X, CAM5MP_Y as _CAM5MP_Y
-CAM5MP = ImageResolution(_CAM5MP_X, _CAM5MP_Y, _CAM5MP)
+CAM5MP: Final[ImageResolution] = ImageResolution(_CAM5MP_X, _CAM5MP_Y, _CAM5MP)
 
 class Image(Sequence):
     _c_bytes: ctypes.Array[ctypes.c_byte]
