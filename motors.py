@@ -90,7 +90,7 @@ def clamp_motor_speed(speed: int) -> int:
 MotorPort = Literal[1, 2, 3, 4]
 
 from eye import MOTORDrive as _MOTORDrive
-def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed: bool) -> bool:
+def MOTORDrive(motors: MotorPort | list[MotorPort], speed: int, *, clamp_speed: bool = True) -> bool:
     """
     :param:`motor` the motor(s) to drive
     :param:`speed` percentage speed (clamped within -100 to 100)
