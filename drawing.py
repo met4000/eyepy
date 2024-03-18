@@ -6,8 +6,21 @@ from typing import Final, Literal, NamedTuple, cast, overload
 
 
 class Point(NamedTuple):
-    x: int
-    y: int
+    x: float
+    y: float
+
+    def __add__(self, p: Point):
+        x = self.x + p.x
+        y = self.y + p.y
+        return Point(x=x, y=y)
+    
+    def __mul__(self, n: float):
+        x = self.x * n
+        y = self.y * n
+        return Point(x=x, y=y)
+    
+    def __sub__(self, p: Point):
+        return self.__add__(p * -1)
 
 from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 Colour = int
