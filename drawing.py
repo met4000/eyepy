@@ -101,6 +101,22 @@ class Vector(NamedTuple):
     def get_angle(self) -> float:
         """rads"""
         return math.atan2(self.dy, self.dx)
+    
+    @staticmethod
+    def from_angle(angle: float) -> Vector:
+        """
+        :param:`angle` rads
+
+        Returns a unit vector in direction :param:`angle`.
+        """
+        return Vector(math.cos(angle), math.sin(angle))
+    
+    @staticmethod
+    def from_polar(*, magnitude: float, angle: float) -> Vector:
+        """
+        :param:`angle` rads
+        """
+        return Vector.from_angle(angle) * magnitude
 
 from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 Colour = int
