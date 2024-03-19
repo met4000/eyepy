@@ -1,4 +1,9 @@
-from typing import Literal
+from __future__ import annotations
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 
 PSDPort = Literal[1, 2, 3, 4, 5, 6]

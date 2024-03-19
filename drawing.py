@@ -3,12 +3,12 @@ from collections.abc import Sequence
 import ctypes
 import itertools
 import math
-from typing import Literal, NamedTuple, cast, overload
+from typing import NamedTuple, cast, overload
 
 try:
-    from typing import Final
+    from typing import Final, Literal
 except ImportError:
-    from typing_extensions import Final
+    from typing_extensions import Final, Literal
 
 
 class IntPoint(NamedTuple):

@@ -1,11 +1,12 @@
+from __future__ import annotations
 import ctypes
 from enum import Enum
-from typing import Callable, Literal, NamedTuple, Optional, TypeVar
+from typing import Callable, NamedTuple, Optional, TypeVar
 
 try:
-    from typing import Final
+    from typing import Final, Literal
 except ImportError:
-    from typing_extensions import Final
+    from typing_extensions import Final, Literal
 
 from eye import lib
 

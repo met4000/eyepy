@@ -1,4 +1,9 @@
-from typing import Literal
+from __future__ import annotations
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 from eyepy.internal_utils import repeat_func
 from eyepy.utils import clamp

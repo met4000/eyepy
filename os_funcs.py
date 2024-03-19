@@ -1,7 +1,13 @@
+from __future__ import annotations
 import ctypes
 import datetime
 import time
-from typing import Callable, Literal, NamedTuple
+from typing import Callable, NamedTuple
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 from eye import lib
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import ctypes
 from enum import Enum
 from typing import Optional
