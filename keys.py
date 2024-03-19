@@ -1,6 +1,11 @@
 import ctypes
 from enum import Enum
-from typing import Final, Optional
+from typing import Optional
+
+try:
+    from typing import Final
+except ImportError:
+    from typing_extensions import Final
 
 from eye import lib
 

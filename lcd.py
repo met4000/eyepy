@@ -1,6 +1,11 @@
 import ctypes
 from enum import Enum
-from typing import Callable, Final, Literal, NamedTuple, Optional, TypeVar
+from typing import Callable, Literal, NamedTuple, Optional, TypeVar
+
+try:
+    from typing import Final
+except ImportError:
+    from typing_extensions import Final
 
 from eye import lib
 

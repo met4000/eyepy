@@ -2,7 +2,12 @@ from __future__ import annotations
 from collections.abc import Sequence
 import ctypes
 import itertools
-from typing import Final, Literal, NamedTuple, cast, overload
+from typing import Literal, NamedTuple, cast, overload
+
+try:
+    from typing import Final
+except ImportError:
+    from typing_extensions import Final
 
 
 class Point(NamedTuple):
