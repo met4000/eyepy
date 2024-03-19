@@ -146,6 +146,7 @@ class LCDSize(NamedTuple):
 def LCDGetSize() -> LCDSize:
     """
     Throws a `RuntimeError` if the internal call to `LCDGetSize` returns an error value.
+    Printable pixel values include 0 but exclude the values returned.
     """
     width = ctypes.c_int()
     height = ctypes.c_int()
