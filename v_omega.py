@@ -1,5 +1,6 @@
-from typing import NamedTuple
+from typing import NamedTuple, overload
 
+from eyepy.drawing import IntPoint, Point
 from eyepy.motors import MOTORDrive
 from eyepy.utils import wrap
 
@@ -25,32 +26,44 @@ def VWSetSpeed(*, lin_speed: int, ang_speed: int) -> bool:
     return _VW_OK(return_code)
 
 # ? no VWGetSpeed
-
-from eye import VWSetPosition as _VWSetPosition
-def VWSetPosition(*, x: int, y: int, phi: int) -> bool:
-    """
-    :param:`x` mm
-    :param:`y` mm
-    :param:`phi` degrees
-
-    Returns `True` if ok.
-    """
-    return_code = _VWSetPosition(x, y, phi)
-    return _VW_OK(return_code)
+# ! TODO
 
 class VWPosition(NamedTuple):
-    x: int
-    """mm"""
-
-    y: int
+    pos: IntPoint
     """mm"""
 
     phi: int
     """degrees"""
 
+    def as_float(self) -> tuple[Point, float]:
+        return Point(*self.pos), self.phi
+
+from eye import VWSetPosition as _VWSetPosition
+@overload
+def VWSetPosition(pos: VWPosition) -> bool: ...
+@overload
+def VWSetPosition(pos: IntPoint | tuple[int, int], phi: int) -> bool:
+    """
+    :param:`pos` mm
+    :param:`phi` degrees
+
+    Returns `True` if ok.
+    """
+    ...
+def VWSetPosition(pos: VWPosition | IntPoint | tuple[int, int], phi: int | None = None) -> bool:
+    """
+    Returns `True` if ok.
+    """
+    if isinstance(pos, VWPosition):
+        pos, phi = pos
+    pos = IntPoint(*pos)
+    return_code = _VWSetPosition(pos.x, pos.y, phi)
+    return _VW_OK(return_code)
+
 from eye import VWGetPosition as _VWGetPosition
 def VWGetPosition() -> VWPosition:
-    return VWPosition(*_VWGetPosition())
+    x, y, phi = _VWGetPosition()
+    return VWPosition(IntPoint(x, y), phi)
 
 from eye import VWStraight as _VWStraight
 def VWStraight(dist: int, *, lin_speed: int) -> bool:
