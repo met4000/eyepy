@@ -70,10 +70,6 @@ class Vector(NamedTuple):
             p = Point(*obj)
             return Point(self.dx + p.x, self.dy + p.y)
     
-    # commutativity
-    def __radd__(self, obj: tuple[float, float]) -> Point:
-        return self + obj
-    
     def __mul__(self, n: float) -> Vector:
         return Vector(self.dx * n, self.dy * n)
     
