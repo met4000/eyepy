@@ -28,4 +28,5 @@ from eyepy.v_omega import *
 # TODO sim only functions
 
 # new funcs
+from eyepy.utils import *
 from eyepy.drawing import *

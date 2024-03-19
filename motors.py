@@ -1,6 +1,7 @@
 from typing import Literal
 
-from eyepy.utils import repeat_func, clamp
+from eyepy.internal_utils import repeat_func
+from eyepy.utils import clamp
 
 
 # SERVOS

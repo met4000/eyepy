@@ -1,6 +1,7 @@
 from typing import NamedTuple
 
 from eyepy.motors import MOTORDrive
+from eyepy.utils import wrap
 
 
 def _VW_OK(return_code: int) -> bool:
@@ -8,6 +9,9 @@ def _VW_OK(return_code: int) -> bool:
     Default VW return code checking behaviour
     """
     return return_code == 0
+
+def wrap_turn_angle(angle: int) -> int:
+    return wrap(angle, -180, 180)
 
 from eye import VWSetSpeed as _VWSetSpeed
 def VWSetSpeed(*, lin_speed: int, ang_speed: int) -> bool:
@@ -60,25 +64,33 @@ def VWStraight(dist: int, *, lin_speed: int) -> bool:
     return _VW_OK(return_code)
 
 from eye import VWTurn as _VWTurn
-def VWTurn(angle: int, *, ang_speed: int) -> bool:
+def VWTurn(angle: int, *, ang_speed: int, wrap: bool = True) -> bool:
     """
     :param:`angle` degrees
     :param:`ang_speed` degrees/s
+    :param:`wrap` if `True`, turns the shortest distance; wraps values from -180 to 180
 
     Returns `True` if ok.
     """
+    if wrap:
+        angle = wrap_turn_angle(angle)
+    
     return_code = _VWTurn(angle, ang_speed)
     return _VW_OK(return_code)
 
 from eye import VWCurve as _VWCurve
-def VWCurve(*, dist: int, angle: int, lin_speed: int) -> bool:
+def VWCurve(*, dist: int, angle: int, lin_speed: int, wrap: bool = True) -> bool:
     """
     :param:`dist` mm
     :param:`angle` degrees (orientation change)
     :param:`lin_speed` mm/s
+    :param:`wrap` if `True`, turns the shortest distance; wraps values from -180 to 180
 
     Returns `True` if ok.
     """
+    if wrap:
+        angle = wrap_turn_angle(angle)
+
     return_code = _VWCurve(dist, angle, lin_speed)
     return _VW_OK(return_code)
 
