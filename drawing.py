@@ -26,19 +26,23 @@ class Point(NamedTuple):
     def __mul__(self, n: float):
         return Point(self.x * n, self.y * n)
     
+    # commutativity
+    def __rmul__(self, n: float):
+        return self * n
+    
     @overload
     def __sub__(self, obj: Vector) -> Point: ...
     @overload
     def __sub__(self, obj: Point | tuple[float, float]) -> Vector: ...
     def __sub__(self, obj: Vector | Point | tuple[float, float]) -> Point | Vector:
         if isinstance(obj, Vector):
-            return self.__add__(-obj)
+            return self + (-obj)
         else:
             obj = Point(*obj)
-            return self.as_vector().__sub__(obj.as_vector())
+            return self.as_vector() - obj.as_vector()
     
     def __truediv__(self, n: float):
-        return self.__mul__(1 / n)
+        return self * (1 / n)
     
     def __abs__(self):
         """magnitude"""
@@ -66,14 +70,22 @@ class Vector(NamedTuple):
             p = Point(*obj)
             return Point(self.dx + p.x, self.dy + p.y)
     
+    # commutativity
+    def __radd__(self, obj: tuple[float, float]) -> Point:
+        return self + obj
+    
     def __mul__(self, n: float) -> Vector:
         return Vector(self.dx * n, self.dy * n)
     
+    # commutativity
+    def __rmul__(self, n: float) -> Vector:
+        return self * n
+    
     def __sub__(self, v: Vector) -> Vector:
-        return self.__add__(-v)
+        return self + (-v)
     
     def __truediv__(self, n: float) -> Vector:
-        return self.__mul__(1 / n)
+        return self * (1 / n)
     
     def __abs__(self):
         """magnitude"""
