@@ -1,4 +1,7 @@
+import ctypes
 from typing import NamedTuple, overload
+
+from eye import lib
 
 from eyepy.drawing import IntPoint, Point
 from eyepy.motors import MOTORDrive
@@ -25,8 +28,23 @@ def VWSetSpeed(*, lin_speed: int, ang_speed: int) -> bool:
     return_code = _VWSetSpeed(lin_speed, ang_speed)
     return _VW_OK(return_code)
 
-# ? no VWGetSpeed
-# ! TODO
+# `lib.VWGetSpeed`` (incorrectly) defined in eye.py, and also has no python function
+lib.VWGetSpeed.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
+def VWGetSpeed() -> tuple[int, int]:
+    """
+    Throws a `RuntimeError` if the internal call to `VWGetSpeed` returns an error value.
+    Returns the linear speed (mm/s) and angular speed (deg/s).
+    
+    Note: from testing the returned values seem to be measured, rather than getting
+    the values currently trying to be achieved by e.g. :func:`VWSetSpeed`.
+    """
+    lin_speed = ctypes.c_int()
+    ang_speed = ctypes.c_int()
+
+    return_code = lib.VWGetSpeed(ctypes.pointer(lin_speed), ctypes.pointer(ang_speed))
+    if return_code != 0: raise RuntimeError()
+
+    return lin_speed.value, ang_speed.value
 
 class VWPosition(NamedTuple):
     pos: IntPoint
