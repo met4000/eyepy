@@ -77,6 +77,10 @@ class Vector(NamedTuple):
     def __rmul__(self, n: float) -> Vector:
         return self * n
     
+    # must be left-multiplied
+    def __rmatmul__(self, mat: tuple[tuple[float, float], tuple[float, float]]) -> Vector:
+        return Vector(mat[0][0] * self.dx + mat[0][1] * self.dy, mat[1][0] * self.dx + mat[1][1] * self.dy)
+    
     def __sub__(self, v: Vector) -> Vector:
         return self + (-v)
     
