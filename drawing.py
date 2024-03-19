@@ -2,6 +2,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 import ctypes
 import itertools
+import math
 from typing import Literal, NamedTuple, cast, overload
 
 try:
@@ -10,22 +11,84 @@ except ImportError:
     from typing_extensions import Final
 
 
+class IntPoint(NamedTuple):
+    x: int
+    y: int
+
 class Point(NamedTuple):
     x: float
     y: float
 
-    def __add__(self, p: Point):
-        x = self.x + p.x
-        y = self.y + p.y
-        return Point(x=x, y=y)
+    def __add__(self, v: Vector | tuple[float, float]) -> Point:
+        v = Vector(*v)
+        return Point(self.x + v.dx, self.y + v.dy)
     
     def __mul__(self, n: float):
-        x = self.x * n
-        y = self.y * n
-        return Point(x=x, y=y)
+        return Point(self.x * n, self.y * n)
     
-    def __sub__(self, p: Point):
-        return self.__add__(p * -1)
+    @overload
+    def __sub__(self, obj: Vector) -> Point: ...
+    @overload
+    def __sub__(self, obj: Point | tuple[float, float]) -> Vector: ...
+    def __sub__(self, obj: Vector | Point | tuple[float, float]) -> Point | Vector:
+        if isinstance(obj, Vector):
+            return self.__add__(-obj)
+        else:
+            obj = Point(*obj)
+            return self.as_vector().__sub__(obj.as_vector())
+    
+    def __truediv__(self, n: float):
+        return self.__mul__(1 / n)
+    
+    def __abs__(self):
+        """magnitude"""
+        return math.sqrt(self.x**2 + self.y**2)
+    
+
+    def as_vector(self) -> Vector:
+        return Vector(*self)
+    
+    def round(self) -> IntPoint:
+        return IntPoint(round(self.x), round(self.y))
+
+class Vector(NamedTuple):
+    dx: float
+    dy: float
+
+    @overload
+    def __add__(self, obj: Vector) -> Vector: ...
+    @overload
+    def __add__(self, obj: Point | tuple[float, float]) -> Point: ...
+    def __add__(self, obj: Vector | Point | tuple[float, float]) -> Vector | Point:
+        if isinstance(obj, Vector):
+            return Vector(self.dx + obj.dx, self.dy + obj.dy)
+        else:
+            p = Point(*obj)
+            return Point(self.dx + p.x, self.dy + p.y)
+    
+    def __mul__(self, n: float) -> Vector:
+        return Vector(self.dx * n, self.dy * n)
+    
+    def __sub__(self, v: Vector) -> Vector:
+        return self.__add__(-v)
+    
+    def __truediv__(self, n: float) -> Vector:
+        return self.__mul__(1 / n)
+    
+    def __abs__(self):
+        """magnitude"""
+        return math.sqrt(self.dx**2 + self.dy**2)
+    
+    def __neg__(self) -> Vector:
+        return self * -1
+    
+
+    def as_point(self) -> Point:
+        return Point(*self)
+    
+    def get_angle(self) -> float:
+        """rads"""
+        return math.atan2(self.dy, self.dx)
 
 from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 Colour = int
