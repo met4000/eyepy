@@ -52,6 +52,8 @@ def LIDARSet(*, range: Optional[int] = None, tilt: Optional[int] = None, n_point
     
     if n_points is not None:
         _lidar_n_points = n_points
+    
+    _LIDARSet(_lidar_range, _lidar_tilt, _lidar_n_points)
 
 class LIDARConfig(NamedTuple):
     range: int
