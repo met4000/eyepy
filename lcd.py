@@ -10,7 +10,7 @@ except ImportError:
 
 from eye import lib
 
-from eyepy.drawing import Image, ImageResolution, Colour, IntPoint, colour_to_str
+from eyepy.drawing import Image, ImageResolution, Colour, IntPoint, IntPointLike, Point, PointLike, colour_to_str
 
 
 def _LCD_OK(return_code: int) -> bool:
@@ -156,21 +156,76 @@ def LCDGetSize() -> LCDSize:
 
     return LCDSize(width=width.value, height=height.value)
 
+def lcd_make_coord_map(p2: PointLike, *, p1: PointLike = Point(0, 0)) -> Callable[[Point], IntPoint]:
+    """
+    Produces a function flipping the y axis, mapping :param:`p2` to the
+    top right of the screen, and :param:`p1` to the bottom left.
+    
+    """
+    display_max_x, display_max_y = LCDGetSize()
+
+    bottom_left = Point(0, display_max_y - 1)
+    top_right = Point(display_max_x - 1, 0)
+    display_delta = bottom_left.as_vector() + top_right.as_vector()
+
+    p1 = Point(*p1)
+    p2 = Point(*p2)
+    p_delta = p2 - p1
+
+    matrix = ((display_delta.dx / p_delta.dx, 0), (0, -display_delta.dy / p_delta.dy))
+
+    def f(p: Point) -> IntPoint:
+        # get vector from p1 to p
+        v = p - p1
+
+        # flip and scale
+        v = matrix @ v
+
+        # translate to screen coords
+        p_prime = bottom_left + v
+
+        return p_prime.round()
+    
+    return f
+
+def lcd_default_point_map(p: Point) -> IntPoint:
+    return p.round()
+
+lcd_default_world_coord_map = lcd_make_coord_map((2000, 2000))
+
+_lcd_point_map: Callable[[Point], IntPoint] = lcd_default_point_map
+
+def LCDSetPointMap(f: Callable[[Point], IntPoint]):
+    global _lcd_point_map
+    _lcd_point_map = f
+
 from eye import LCDPixel as _LCDPixel
-def LCDPixel(pixel: IntPoint | tuple[int, int], col: Colour, *, validate_col: bool = True) -> bool:
+def LCDPixel(pixel: PointLike, col: Colour, *, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
     if validate_col: _validate_colours(col)
-    pixel = IntPoint(*pixel)
-    return_code = _LCDPixel(pixel.x, pixel.y, col)
+    pixel = Point(*pixel)
+    
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_point = map(pixel)
+
+    return_code = _LCDPixel(mapped_point.x, mapped_point.y, col)
     return _LCD_OK(return_code)
 
 from eye import LCDGetPixel as _LCDGetPixel
-def LCDGetPixel(pixel: IntPoint | tuple[int, int], *, validate: bool = True) -> Colour:
+def LCDGetPixel(pixel: PointLike, *, validate: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> Colour:
     """
     If :param:`validate` is `True`, a `RuntimeError` will be thrown if
     an invalid colour is returned by `LCDGetPixel`.
     """
-    pixel = IntPoint(*pixel)
-    col = _LCDGetPixel(pixel.x, pixel.y)
+    pixel = Point(*pixel)
+
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_point = map(pixel)
+
+    col = _LCDGetPixel(mapped_point.x, mapped_point.y)
 
     if validate:
         try:
@@ -181,32 +236,51 @@ def LCDGetPixel(pixel: IntPoint | tuple[int, int], *, validate: bool = True) -> 
     return col
 
 from eye import LCDLine as _LCDLine
-def LCDLine(p1: IntPoint | tuple[int, int], p2: IntPoint | tuple[int, int], col: Colour, *, validate_col: bool = True) -> bool:
+def LCDLine(p1: PointLike, p2: PointLike, col: Colour, *, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
     if validate_col: _validate_colours(col)
-    p1 = IntPoint(*p1)
-    p2 = IntPoint(*p2)
+    p1 = Point(*p1)
+    p2 = Point(*p2)
 
-    return_code = _LCDLine(p1.x, p1.y, p2.x, p2.y, col)
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_p1 = map(p1)
+    mapped_p2 = map(p2)
+
+    return_code = _LCDLine(mapped_p1.x, mapped_p1.y, mapped_p2.x, mapped_p2.y, col)
     return _LCD_OK(return_code)
 
 from eye import LCDArea as _LCDArea
-def LCDArea(p1: IntPoint | tuple[int, int], p2: IntPoint | tuple[int, int], col: Colour, *, fill: bool = True, validate_col: bool = True) -> bool:
+def LCDArea(p1: PointLike, p2: PointLike, col: Colour, *, fill: bool = True, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
     if validate_col: _validate_colours(col)
-    p1 = IntPoint(*p1)
-    p2 = IntPoint(*p2)
+    p1 = Point(*p1)
+    p2 = Point(*p2)
 
-    return_code = _LCDArea(p1.x, p1.y, p2.x, p2.y, col, int(fill))
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_p1 = map(p1)
+    mapped_p2 = map(p2)
+
+    return_code = _LCDArea(mapped_p1.x, mapped_p1.y, mapped_p2.x, mapped_p2.y, col, int(fill))
     return _LCD_OK(return_code)
 
 from eye import LCDCircle as _LCDCircle
-def LCDCircle(centre: IntPoint | tuple[int, int], size: int, col: Colour, *, fill: bool = True, validate_col: bool = True) -> bool:
+def LCDCircle(centre: PointLike, size: int, col: Colour, *, fill: bool = True, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
     """
     TODO check what 'size' means (radius? diameter?)
+
+    Note: size is not scaled by the point map
     """
     if validate_col: _validate_colours(col)
-    centre = IntPoint(*centre)
+    centre = Point(*centre)
 
-    return_code = _LCDCircle(centre.x, centre.y, size, col, int(fill))
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_centre = map(centre)
+
+    return_code = _LCDCircle(mapped_centre.x, mapped_centre.y, size, col, int(fill))
     return _LCD_OK(return_code)
 
 _image_position: IntPoint = IntPoint(0, 0)
@@ -223,7 +297,7 @@ def LCDImageSize(resolution: ImageResolution) -> bool:
     return _LCD_OK(return_code)
 
 from eye import LCDImageStart as _LCDImageStart
-def LCDImageStart(start: IntPoint | tuple[int, int], *, width: int, height: int) -> bool:
+def LCDImageStart(start: IntPointLike, *, width: int, height: int) -> bool:
     """
     Sets default image position and size.
 
@@ -240,7 +314,7 @@ def LCDImageStart(start: IntPoint | tuple[int, int], *, width: int, height: int)
     return True
 
 R = TypeVar("R")
-def _lcd_image_print_base(image: Image, *, print_func: Callable[[ctypes.Array[ctypes.c_byte]], R], ok_predicate: Callable[[R], bool], start: Optional[IntPoint | tuple[int, int]]) -> bool:
+def _lcd_image_print_base(image: Image, *, print_func: Callable[[ctypes.Array[ctypes.c_byte]], R], ok_predicate: Callable[[R], bool], start: Optional[IntPointLike]) -> bool:
     default_position = _image_position
     if not LCDImageStart(
         start if start is not None else default_position,
@@ -258,7 +332,7 @@ def _lcd_image_print_base(image: Image, *, print_func: Callable[[ctypes.Array[ct
     return ok_predicate(return_code)
 
 # `eye.LCDImage` simply wraps it, so we directly use `lib.LCDImage`
-def LCDImage(image: Image, *, start: Optional[IntPoint | tuple[int, int]] = None) -> bool:
+def LCDImage(image: Image, *, start: Optional[IntPointLike] = None) -> bool:
     """
     Returns `False` if the image is not the correct type (e.g. is a gray image),
     or if the internal calls to `LCDImageStart` or `LCDImage` return an error value.
@@ -272,7 +346,7 @@ def LCDImage(image: Image, *, start: Optional[IntPoint | tuple[int, int]] = None
     return _lcd_image_print_base(image, print_func=lib.LCDImage, ok_predicate=_LCD_OK, start=start)
 
 # `eye.LCDImageGray` simply wraps it, so we directly use `lib.LCDImageGray`
-def LCDImageGray(image: Image, *, start: Optional[IntPoint | tuple[int, int]] = None) -> bool:
+def LCDImageGray(image: Image, *, start: Optional[IntPointLike] = None) -> bool:
     """
     Returns `False` if the image is not the correct type (e.g. is a colour image),
     or if the internal calls to `LCDImageStart` or `LCDImageGray` return an error value.
@@ -286,7 +360,7 @@ def LCDImageGray(image: Image, *, start: Optional[IntPoint | tuple[int, int]] = 
     return _lcd_image_print_base(image, print_func=lib.LCDImageGray, ok_predicate=_LCD_OK, start=start)
 
 # `eye.LCDImageBinary` simply wraps it, so we directly use `lib.LCDImageBinary`
-def LCDImageBinary(image: Image, *, start: Optional[IntPoint | tuple[int, int]] = None) -> bool:
+def LCDImageBinary(image: Image, *, start: Optional[IntPointLike] = None) -> bool:
     """
     Expects a gray image using only 0 (white) and 1 (black).
     If :param:`validate` is `True`, will return `False` if the image is not

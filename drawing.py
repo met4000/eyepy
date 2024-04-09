@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import ctypes
 import itertools
 import math
-from typing import NamedTuple, cast, overload
+from typing import Callable, NamedTuple, cast, overload
 
 try:
     from typing import Final, Literal
@@ -14,6 +14,8 @@ except ImportError:
 class IntPoint(NamedTuple):
     x: int
     y: int
+
+IntPointLike = IntPoint | tuple[int, int]
 
 class Point(NamedTuple):
     x: float
@@ -33,8 +35,8 @@ class Point(NamedTuple):
     @overload
     def __sub__(self, obj: Vector) -> Point: ...
     @overload
-    def __sub__(self, obj: Point | tuple[float, float]) -> Vector: ...
-    def __sub__(self, obj: Vector | Point | tuple[float, float]) -> Point | Vector:
+    def __sub__(self, obj: PointLike) -> Vector: ...
+    def __sub__(self, obj: Vector | PointLike) -> Point | Vector:
         if isinstance(obj, Vector):
             return self + (-obj)
         else:
@@ -55,6 +57,8 @@ class Point(NamedTuple):
     def round(self) -> IntPoint:
         return IntPoint(round(self.x), round(self.y))
 
+PointLike = Point | tuple[float, float]
+
 class Vector(NamedTuple):
     dx: float
     dy: float
@@ -62,8 +66,8 @@ class Vector(NamedTuple):
     @overload
     def __add__(self, obj: Vector) -> Vector: ...
     @overload
-    def __add__(self, obj: Point | tuple[float, float]) -> Point: ...
-    def __add__(self, obj: Vector | Point | tuple[float, float]) -> Vector | Point:
+    def __add__(self, obj: PointLike) -> Point: ...
+    def __add__(self, obj: Vector | PointLike) -> Vector | Point:
         if isinstance(obj, Vector):
             return Vector(self.dx + obj.dx, self.dy + obj.dy)
         else:
@@ -94,6 +98,16 @@ class Vector(NamedTuple):
     def __neg__(self) -> Vector:
         return self * -1
     
+    # positive rotation
+    def __lshift__(self, angle: float) -> Vector:
+        """rads"""
+        return Vector.from_angle(self.get_angle() + angle) * abs(self)
+    
+    # negative rotation
+    def __rshift__(self, angle: float) -> Vector:
+        """rads"""
+        return self << -angle
+    
 
     def as_point(self) -> Point:
         return Point(*self)
@@ -117,6 +131,37 @@ class Vector(NamedTuple):
         :param:`angle` rads
         """
         return Vector.from_angle(angle) * magnitude
+    
+def make_linear_point_mapping(initial_points: tuple[PointLike, PointLike], final_points: tuple[PointLike, PointLike], mirror: bool = False) -> Callable[[Point], Point]:
+    """see also lcd.lcd_make_coord_map"""
+    o1 = Point(*initial_points[0])
+    v1 = Point(*initial_points[1]) - o1
+    v1_angle = v1.get_angle()
+
+    o2 = Point(*final_points[0])
+    v2 = Point(*final_points[1]) - o2
+
+    rot_rads = v2.get_angle() - v1_angle
+    scaling = abs(v2) / abs(v1)
+
+    def f(p: Point) -> Point:
+        # get vector from 'origin'
+        v = p - o1
+
+        if mirror:
+            ang_diff_rads = v.get_angle() - v1_angle
+            v = v >> 2 * ang_diff_rads
+
+        # rotate and scale vector
+        v = (v << rot_rads) * scaling
+
+        # final position
+        p_prime = o2 + v
+
+        return p_prime
+    
+    return f
+
 
 from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 Colour = int
