@@ -6,16 +6,16 @@ import math
 from typing import Callable, NamedTuple, cast, overload
 
 try:
-    from typing import Final, Literal
+    from typing import Final, Literal, TypeAlias
 except ImportError:
-    from typing_extensions import Final, Literal
+    from typing_extensions import Final, Literal, TypeAlias
 
 
 class IntPoint(NamedTuple):
     x: int
     y: int
 
-IntPointLike = IntPoint | tuple[int, int]
+IntPointLike: TypeAlias = "IntPoint | tuple[int, int]"
 
 class Point(NamedTuple):
     x: float
@@ -57,7 +57,7 @@ class Point(NamedTuple):
     def round(self) -> IntPoint:
         return IntPoint(round(self.x), round(self.y))
 
-PointLike = Point | tuple[float, float]
+PointLike: TypeAlias = "Point | tuple[float, float]"
 
 class Vector(NamedTuple):
     dx: float
