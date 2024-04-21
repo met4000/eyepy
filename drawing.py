@@ -56,6 +56,10 @@ class Point(NamedTuple):
     
     def round(self) -> IntPoint:
         return IntPoint(round(self.x), round(self.y))
+    def floor(self) -> IntPoint:
+        return IntPoint(math.floor(self.x), math.floor(self.y))
+    def ceil(self) -> IntPoint:
+        return IntPoint(math.ceil(self.x), math.ceil(self.y))
 
 PointLike: TypeAlias = "Point | tuple[float, float]"
 
