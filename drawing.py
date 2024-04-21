@@ -234,10 +234,10 @@ class Image(Sequence):
     def from_list(image: Sequence[tuple[int, int, int]] | Sequence[int], *, gray: bool = False, resolution: ImageResolution) -> Image:
         flat_image: Sequence[int]
         if not gray:
-            image = cast(Sequence[tuple[int, int, int]], image)
+            image = cast("Sequence[tuple[int, int, int]]", image)
             flat_image = list(itertools.chain.from_iterable(image))
         else:
-            flat_image = cast(Sequence[int], image)
+            flat_image = cast("Sequence[int]", image)
         c_bytes = (ctypes.c_byte * len(flat_image))(*flat_image)
         return Image(c_bytes, gray=gray, resolution=resolution)
     
