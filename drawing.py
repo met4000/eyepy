@@ -287,3 +287,14 @@ class Image(Sequence):
     
     def __len__(self) -> int:
         return self._c_bytes.__len__()
+    
+    def get_gray(self, p: IntPointLike) -> int:
+        p = IntPoint(*p)
+        i = p.x + p.y * self.resolution.WIDTH
+        return self[i]
+    
+    def get_colour(self, p: IntPointLike) -> tuple[int, int, int]:
+        p = IntPoint(*p)
+        i = (p.x + p.y * self.resolution.WIDTH) * 3
+        return (self[i], self[i + 1], self[i + 2])
+        ...
