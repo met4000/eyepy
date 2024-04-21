@@ -297,4 +297,37 @@ class Image(Sequence):
         p = IntPoint(*p)
         i = (p.x + p.y * self.resolution.WIDTH) * 3
         return (self[i], self[i + 1], self[i + 2])
-        ...
+
+    @staticmethod
+    def point_from_index(resolution: ImageResolution, i: int) -> IntPoint:
+        return IntPoint(i % resolution.WIDTH, i // resolution.WIDTH)
+    
+    @staticmethod
+    def point_in_image(resolution: ImageResolution, p: IntPointLike) -> bool:
+        p = IntPoint(*p)
+        
+        if p.x < 0 or p.y < 0:
+            return False
+        
+        if p.x >= resolution.WIDTH or p.y >= resolution.HEIGHT:
+            return False
+        
+        return True
+    
+    def apply_local_op(self, local_op: Callable[[IntPoint, Callable[[IntPointLike, float], float]], int]) -> Image:
+        """
+        TODO: support for colour images
+        """
+        def get_or_default(p: IntPointLike, default: float) -> float:
+            p = IntPoint(*p)
+            if not Image.point_in_image(self.resolution, p):
+                return default
+            return self.get_gray(p)
+
+        image_data: list[int] = []
+        for i in range(len(self)):
+            p = Image.point_from_index(self.resolution, i)
+            value = local_op(p, get_or_default)
+            image_data.append(value)
+        
+        return Image.from_list(image_data, gray=True, resolution=self.resolution)
