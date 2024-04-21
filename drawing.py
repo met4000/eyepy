@@ -162,6 +162,35 @@ def make_linear_point_mapping(initial_points: tuple[PointLike, PointLike], final
     
     return f
 
+def make_coord_map(initial_points: tuple[PointLike, PointLike], final_points: tuple[PointLike, PointLike]) -> Callable[[Point], Point]:
+    """
+    Produces a function mapping initial_points to final_points via
+    only stretches and translations to the x and y axis (independently).
+    """
+    initial_p1 = Point(*initial_points[0])
+    initial_p2 = Point(*initial_points[1])
+    initial_delta = initial_p2 - initial_p1
+
+    final_p1 = Point(*final_points[0])
+    final_p2 = Point(*final_points[1])
+    final_delta = final_p2 - final_p1
+
+    matrix = ((final_delta.dx / initial_delta.dx, 0), (0, -final_delta.dy / initial_delta.dy))
+
+    def f(p: Point) -> Point:
+        # get vector from p1 to p
+        v = p - initial_p1
+
+        # flip and scale
+        v = matrix @ v
+
+        # translate to screen coords
+        p_prime = final_p1 + v
+
+        return p_prime
+    
+    return f
+
 
 from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 Colour = int

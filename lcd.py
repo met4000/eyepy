@@ -10,7 +10,7 @@ except ImportError:
 
 from eye import lib
 
-from eyepy.drawing import Image, ImageResolution, Colour, IntPoint, IntPointLike, Point, PointLike, colour_to_str
+from eyepy.drawing import Image, ImageResolution, Colour, IntPoint, IntPointLike, Point, PointLike, colour_to_str, make_coord_map
 
 
 def _LCD_OK(return_code: int) -> bool:
@@ -166,27 +166,11 @@ def lcd_make_coord_map(p2: PointLike, *, p1: PointLike = Point(0, 0)) -> Callabl
 
     bottom_left = Point(0, display_max_y - 1)
     top_right = Point(display_max_x - 1, 0)
-    display_delta = bottom_left.as_vector() + top_right.as_vector()
 
-    p1 = Point(*p1)
-    p2 = Point(*p2)
-    p_delta = p2 - p1
+    f = make_coord_map((p1, p2), (bottom_left, top_right))
+    f_int: Callable[[Point], IntPoint] = lambda p: f(p).round()
 
-    matrix = ((display_delta.dx / p_delta.dx, 0), (0, -display_delta.dy / p_delta.dy))
-
-    def f(p: Point) -> IntPoint:
-        # get vector from p1 to p
-        v = p - p1
-
-        # flip and scale
-        v = matrix @ v
-
-        # translate to screen coords
-        p_prime = bottom_left + v
-
-        return p_prime.round()
-    
-    return f
+    return f_int
 
 def lcd_default_point_map(p: Point) -> IntPoint:
     return p.round()
