@@ -179,7 +179,7 @@ def make_coord_map(initial_points: tuple[PointLike, PointLike], final_points: tu
     final_p2 = Point(*final_points[1])
     final_delta = final_p2 - final_p1
 
-    matrix = ((final_delta.dx / initial_delta.dx, 0), (0, -final_delta.dy / initial_delta.dy))
+    matrix = ((final_delta.dx / initial_delta.dx, 0), (0, final_delta.dy / initial_delta.dy))
 
     def f(p: Point) -> Point:
         # get vector from p1 to p
