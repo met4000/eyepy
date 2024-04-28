@@ -1,6 +1,5 @@
 from __future__ import annotations
 import ctypes
-import math
 
 from eyepy.drawing import Colour, colour_to_rgb
 
