@@ -6,7 +6,8 @@ from eyepy.keys import *
 # TODO camera
 from eyepy.camera import *
 
-# TODO image processing
+# TODO complete image processing
+from eyepy.image_processing import *
 
 from eyepy.os_funcs import *
 

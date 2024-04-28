@@ -202,7 +202,7 @@ Colour = int
 def colour_to_str(col: Colour) -> str:
     return "#%0.6X" % col
 
-def colour_to_tuple(col: Colour) -> tuple[int, int, int]:
+def colour_to_rgb(col: Colour) -> tuple[int, int, int]:
     return (
         (col & 0xFF0000) // 0x010000,
         (col & 0x00FF00) // 0x000100,
@@ -276,7 +276,7 @@ class Image(Sequence):
     
     @staticmethod
     def from_colour_list(colour_image: Sequence[int], *, resolution: ImageResolution) -> Image:
-        return Image.from_list(list(map(colour_to_tuple, colour_image)), gray=False, resolution=resolution)
+        return Image.from_list(list(map(colour_to_rgb, colour_image)), gray=False, resolution=resolution)
     
     @overload
     def __getitem__(self, __key: int) -> int: ...
