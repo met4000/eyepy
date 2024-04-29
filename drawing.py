@@ -15,6 +15,10 @@ class IntPoint(NamedTuple):
     x: int
     y: int
 
+    def __add__(self, v: IntVector | tuple[int, int]) -> IntPoint:
+        v = IntVector(*v)
+        return IntPoint(self.x + v.dx, self.y + v.dy)
+
 IntPointLike: TypeAlias = "IntPoint | tuple[int, int]"
 
 class Point(NamedTuple):
@@ -62,6 +66,23 @@ class Point(NamedTuple):
         return IntPoint(math.ceil(self.x), math.ceil(self.y))
 
 PointLike: TypeAlias = "Point | tuple[float, float]"
+
+class IntVector(NamedTuple):
+    dx: int
+    dy: int
+
+    def __add__(self, v: IntVector) -> IntVector:
+        v = IntVector(*v)
+        return IntVector(self.dx + v.dx, self.dy + v.dy)
+    
+    def __mul__(self, n: int) -> IntVector:
+        return IntVector(self.dx * n, self.dy * n)
+
+    def __sub__(self, v: IntVector) -> IntVector:
+        return self + (-v)
+    
+    def __neg__(self) -> IntVector:
+        return self * -1
 
 class Vector(NamedTuple):
     dx: float
@@ -111,6 +132,9 @@ class Vector(NamedTuple):
     def __rshift__(self, angle: float) -> Vector:
         """rads"""
         return self << -angle
+    
+    def round(self) -> IntVector:
+        return IntVector(round(self.dx), round(self.dy))
     
 
     def as_point(self) -> Point:
