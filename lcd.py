@@ -1,7 +1,7 @@
 from __future__ import annotations
 import ctypes
 from enum import Enum
-from typing import Callable, NamedTuple, Optional, TypeVar
+from typing import Any, Callable, NamedTuple, Optional, TypeVar
 
 try:
     from typing import Final, Literal
@@ -20,12 +20,12 @@ def _LCD_OK(return_code: int) -> bool:
     return return_code == 0
 
 from eye import LCDPrintf as _LCDPrintf
-def LCDPrintf(format: str, *data: str) -> bool:
+def LCDPrintf(format: str, *data: Any) -> bool:
     return_code = _LCDPrintf(format, *data)
     return _LCD_OK(return_code)
 
 from eye import LCDSetPrintf as _LCDSetPrintf
-def LCDSetPrintf(row: int, col: int, format: str, *data: str) -> bool:
+def LCDSetPrintf(row: int, col: int, format: str, *data: Any) -> bool:
     return_code = _LCDSetPrintf(row, col, format, *data)
     return _LCD_OK(return_code)
 
