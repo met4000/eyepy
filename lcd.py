@@ -1,6 +1,8 @@
 from __future__ import annotations
 import ctypes
 from enum import Enum
+import itertools
+import math
 from typing import Any, Callable, NamedTuple, Optional, TypeVar
 
 try:
@@ -156,7 +158,7 @@ def LCDGetSize() -> LCDSize:
 
     return LCDSize(width=width.value, height=height.value)
 
-def lcd_make_coord_map(p2: PointLike, *, p1: PointLike = Point(0, 0)) -> Callable[[Point], IntPoint]:
+def lcd_make_coord_map(p2: PointLike, p1: PointLike = Point(0, 0)) -> Callable[[Point], IntPoint]:
     """
     Produces a function flipping the y axis, mapping :param:`p2` to the
     top right of the screen, and :param:`p1` to the bottom left.
@@ -248,6 +250,42 @@ def LCDArea(p1: PointLike, p2: PointLike, col: Colour, *, fill: bool = True, val
 
     return_code = _LCDArea(mapped_p1.x, mapped_p1.y, mapped_p2.x, mapped_p2.y, col, int(fill))
     return _LCD_OK(return_code)
+
+def LCDPixelArea(pixel: PointLike, col: Colour, *, pixel_dx: float = 1, pixel_dy: float = 1, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
+    """
+    Assumes point map is locally linear and pixels are still aligned after being mapped (rotation by 90 is fine).
+    :param:`pixel_dx` and :param:`pixel_dy` are the dimensions of pixels in the coordinate space before mapping.
+    """
+    pixel = Point(*pixel)
+
+    if validate_col: _validate_colours(col)
+    pixel = Point(*pixel)
+    
+    map = _lcd_point_map
+    if point_map_override is not None:
+        map = point_map_override
+    mapped_point = map(pixel)
+
+    # calculate approx bounding box by finding the mapped locations of the adjacent pixels
+    mapped_adj_pixels = [map(pixel + (dx * pixel_dx, dy * pixel_dy)) for dx, dy in itertools.product(range(-1, 1 + 1), range(-1, 1 + 1)) if not (dx == 0 and dy == 0)]
+    bound_left = min(mapped_adj_pixels, key=lambda p: p.x).x
+    bound_right = max(mapped_adj_pixels, key=lambda p: p.x).x
+    bound_top = min(mapped_adj_pixels, key=lambda p: p.y).y
+    bound_bottom = max(mapped_adj_pixels, key=lambda p: p.y).y
+
+    # find new bounds - favour top-left for rounding
+    area_left = math.floor((mapped_point.x + bound_left) / 2)
+    area_right = math.floor((mapped_point.x + bound_right) / 2)
+    area_top = math.floor((mapped_point.y + bound_top) / 2)
+    area_bottom = math.floor((mapped_point.y + bound_bottom) / 2)
+
+    p1 = IntPoint(area_left, area_top)
+    p2 = IntPoint(area_right, area_bottom)
+
+    if p1 == p2: # area is just 1 pixel
+        return LCDPixel(p1, col, point_map_override=lcd_default_point_map)
+    
+    return LCDArea(p1, p2, col, fill=True, point_map_override=lcd_default_point_map)
 
 from eye import LCDCircle as _LCDCircle
 def LCDCircle(centre: PointLike, size: int, col: Colour, *, fill: bool = True, validate_col: bool = True, point_map_override: Callable[[Point], IntPoint] | None = None) -> bool:
