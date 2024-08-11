@@ -1,55 +1,17 @@
-from eyepy.drawing import Image, ImageResolution
+import ctypes
 
+from eye import RED, GREEN, BLUE, WHITE, GRAY, BLACK, ORANGE, SILVER, LIGHTGRAY, DARKGRAY, NAVY, CYAN, TEAL, MAGENTA, PURPLE, MAROON, YELLOW, OLIVE
 
-def _CAM_OK(return_code: int) -> bool:
-    """
-    Default camera return code checking behaviour.
-    """
-    return return_code == 0
-
-from eyepy.drawing import QQVGA, QVGA, VGA, CAM1MP, CAMHD, CAM5MP
-_camera_resolution: ImageResolution = ImageResolution(0, 0)
+from eye import QQVGA as _QQVGA, QQVGA_X as _QQVGA_X, QQVGA_Y as _QQVGA_Y
+from eye import QVGA as _QVGA, QVGA_X as _QVGA_X, QVGA_Y as _QVGA_Y
+from eye import VGA as _VGA, VGA_X as _VGA_X, VGA_Y as _VGA_Y
+from eye import CAM1MP as _CAM1MP, CAM1MP_X as _CAM1MP_X, CAM1MP_Y as _CAM1MP_Y
+from eye import CAMHD as _CAMHD, CAMHD_X as _CAMHD_X, CAMHD_Y as _CAMHD_Y
+from eye import CAM5MP as _CAM5MP, CAM5MP_X as _CAM5MP_X, CAM5MP_Y as _CAM5MP_Y
+from eye import CUSTOM as _CUSTOM
 
 from eye import CAMInit as _CAMInit
-def CAMInit(resolution: ImageResolution) -> bool:
-    """
-    `CUSTOM` seems to be unsupported in sim.
-    """
-    resolution_code = resolution._code
-    return_code = _CAMInit(resolution_code)
-    
-    if not _CAM_OK(return_code):
-        return False
-    
-    global _camera_resolution
-    _camera_resolution = resolution
-    return True
-
 from eye import CAMRelease as _CAMRelease
-def CAMRelease() -> bool:
-    return_code = _CAMRelease()
-    return _CAM_OK(return_code)
 
 from eye import CAMGet as _CAMGet
-def CAMGet() -> Image:
-    """
-    Raises a `ValueError` if the resolution is not set (in testing, segfault-ed if not set).
-    """
-    if _camera_resolution.PIXELS == 0:
-        raise ValueError("resolution not set")
-    
-    raw_image = _CAMGet()
-    image = Image.from_c_bytes(raw_image, gray=False, resolution=_camera_resolution)
-    return image
-
 from eye import CAMGetGray as _CAMGetGray
-def CAMGetGray() -> Image:
-    """
-    Raises a `ValueError` if the resolution is not set (in testing, segfault-ed if not set).
-    """
-    if _camera_resolution.PIXELS == 0:
-        raise ValueError("resolution not set")
-    
-    raw_image = _CAMGetGray()
-    image = Image.from_c_bytes(raw_image, gray=True, resolution=_camera_resolution)
-    return image
