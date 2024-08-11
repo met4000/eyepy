@@ -233,8 +233,9 @@ from eye import SERClose
 
 # ------------------------------ AUDIO ------------------------------
 
-# untested
 from eye import AUBeep
+
+# untested
 from eye import AUPlay
 from eye import AUDone
 from eye import AUMicrophone
@@ -327,47 +328,23 @@ from eye import DIGITALWrite
 
 # ---------- ANALOG ----------
 
-# commented out in eye.py
-lib.ANALOGRecord.argtypes = [ctypes.c_int, ctypes.c_int]
-lib.ANALOGRecord.restype = ctypes.c_int
-lib.ANALOGTransfer.argtypes = [ctypes.c_byte]
-lib.ANALOGTransfer.restype = ctypes.c_int
-
 # untested
 from eye import ANALOGRead
 from eye import ANALOGVoltage
-from eye import ANALOGRecord
-from eye import ANALOGTransfer
+
+# * not supported in sim lib binary
+# from eye import ANALOGRecord
+# from eye import ANALOGTransfer
 
 
 
 # ------------------------------ IR REMOTE CONTROL ------------------------------
 
-# commented out in eye.py
-lib.IRTVGet.argtypes = None # type: ignore
-lib.IRTVGet.restype = ctypes.c_int
-lib.IRTVRead.argtypes = None # type: ignore
-lib.IRTVRead.restype = ctypes.c_int
-lib.IRTVFlush.argtypes = None # type: ignore
-lib.IRTVFlush.restype = ctypes.c_int
-lib.IRTVGetStatus.argtypes = None # type: ignore
-lib.IRTVGetStatus.restype = ctypes.c_int
-
-
-# unimplemented in eye.py
-# untested
-
-def IRTVGet():
-    return lib.IRTVGet()
-
-def IRTVRead():
-    return lib.IRTVRead()
-
-def IRTVFlush():
-    return lib.IRTVFlush()
-
-def IRTVGetStatus():
-    return lib.IRTVGetStatus()
+# * not supported in sim lib binary
+# from eye import IRTVGet
+# from eye import IRTVRead
+# from eye import IRTVFlush
+# from eye import IRTVGetStatus
 
 
 # ------------------------------ RADIO COMS ------------------------------
@@ -420,7 +397,6 @@ from eye import SIMSetObject
 
 
 # unimplemented in eye.py
-# untested
 
 lib.SIMGetRobotCount.argtypes = None # type: ignore
 lib.SIMGetRobotCount.restype = ctypes.c_int
