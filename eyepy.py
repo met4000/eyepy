@@ -311,7 +311,7 @@ from eye import VWSetSpeed
 
 # `lib.VWGetSpeed` (incorrectly) defined in eye.py, and also has no python function
 lib.VWGetSpeed.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
-def VWGetSpeed() -> tuple[int, int]:
+def VWGetSpeed():
     """
     Note: from testing the returned values seem to be measured, rather than getting
     the values currently trying to be achieved by e.g. :func:`VWSetSpeed`.
