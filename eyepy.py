@@ -27,7 +27,7 @@ from eye import LCDSetFont
 from eye import HELVETICA, TIMES, COURIER
 from eye import NORMAL, BOLD, ITALICS
 
-# `lib.LCDSetFontSize`` (incorrectly) defined in eye.py, and also has no python function
+# `lib.LCDSetFontSize` (incorrectly) defined in eye.py, and also has no python function
 lib.LCDSetFontSize.argtypes = [ctypes.c_int]
 def LCDSetFontSize(size):
     """
@@ -43,7 +43,7 @@ from eye import LCDMenu
 from eye import LCDMenuI
 
 
-# `eye.LCDGetSize`` wants pointers, so we might as well directly use `lib.LCDGetSize`
+# `eye.LCDGetSize` wants pointers, so we might as well directly use `lib.LCDGetSize`
 def LCDGetSize():
     width = ctypes.c_int()
     height = ctypes.c_int()
@@ -79,7 +79,7 @@ from eye import KEYRead
 from eye import KEYWait
 
 
-# `eye.KEYGetXY`` wants pointers, so we might as well directly use `lib.KEYGetXY`
+# `eye.KEYGetXY` wants pointers, so we might as well directly use `lib.KEYGetXY`
 def KEYGetXY():
     x = ctypes.c_int()
     y = ctypes.c_int()
@@ -88,7 +88,7 @@ def KEYGetXY():
 
     return x.value, y.value
 
-# `eye.KEYReadXY`` wants pointers, so we might as well directly use `lib.KEYReadXY`
+# `eye.KEYReadXY` wants pointers, so we might as well directly use `lib.KEYReadXY`
 def KEYReadXY():
     x = ctypes.c_int()
     y = ctypes.c_int()
@@ -286,7 +286,7 @@ from eye import ENCODERReset
 
 from eye import VWSetSpeed
 
-# `lib.VWGetSpeed`` (incorrectly) defined in eye.py, and also has no python function
+# `lib.VWGetSpeed` (incorrectly) defined in eye.py, and also has no python function
 lib.VWGetSpeed.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
 def VWGetSpeed() -> tuple[int, int]:
     """
@@ -327,6 +327,12 @@ from eye import DIGITALWrite
 
 # ---------- ANALOG ----------
 
+# commented out in eye.py
+lib.ANALOGRecord.argtypes = [ctypes.c_int, ctypes.c_int]
+lib.ANALOGRecord.restype = ctypes.c_int
+lib.ANALOGTransfer.argtypes = [ctypes.c_byte]
+lib.ANALOGTransfer.restype = ctypes.c_int
+
 # untested
 from eye import ANALOGRead
 from eye import ANALOGVoltage
@@ -337,12 +343,71 @@ from eye import ANALOGTransfer
 
 # ------------------------------ IR REMOTE CONTROL ------------------------------
 
-# TODO ir
+# commented out in eye.py
+lib.IRTVGet.argtypes = None # type: ignore
+lib.IRTVGet.restype = ctypes.c_int
+lib.IRTVRead.argtypes = None # type: ignore
+lib.IRTVRead.restype = ctypes.c_int
+lib.IRTVFlush.argtypes = None # type: ignore
+lib.IRTVFlush.restype = ctypes.c_int
+lib.IRTVGetStatus.argtypes = None # type: ignore
+lib.IRTVGetStatus.restype = ctypes.c_int
+
+
+# unimplemented in eye.py
+# untested
+
+def IRTVGet():
+    return lib.IRTVGet()
+
+def IRTVRead():
+    return lib.IRTVRead()
+
+def IRTVFlush():
+    return lib.IRTVFlush()
+
+def IRTVGetStatus():
+    return lib.IRTVGetStatus()
 
 
 # ------------------------------ RADIO COMS ------------------------------
 
-# TODO radio communication
+# unimplemented in eye.py
+# untested
+
+def RADIOInit():
+    return lib.RADIOInit()
+
+def RADIOGetID():
+    return lib.RADIOGetID()
+
+def RADIOSend(id, buf):
+    return lib.RADIOSend(id, buf)
+
+# `lib.RADIOReceive` (incorrectly) defined in eye.py
+lib.RADIOReceive.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_char), ctypes.c_int]
+def RADIOReceive():
+    partnerid = ctypes.c_int()
+    buf = (ctypes.c_byte*1024)()
+
+    lib.RADIOReceive(ctypes.pointer(partnerid), buf, 1024)
+
+    return partnerid, buf
+
+def RADIOCheck():
+    return lib.RADIOCheck()
+
+# `lib.RADIOStatus` (incorrectly) defined in eye.py
+lib.RADIOStatus.argtypes = [ctypes.POINTER(ctypes.c_int)]
+def RADIOStatus():
+    ids = (ctypes.c_int*256)()
+
+    total = lib.RADIOStatus(ids)
+
+    return total, ids
+
+def RADIORelease():
+    return lib.RADIORelease()
 
 
 
@@ -353,6 +418,17 @@ from eye import SIMSetRobot
 from eye import SIMGetObject
 from eye import SIMSetObject
 
-# TODO
-# from eye import SIMGetRobotCount
-# from eye import SIMGetObjectCount
+
+# unimplemented in eye.py
+# untested
+
+lib.SIMGetRobotCount.argtypes = None # type: ignore
+lib.SIMGetRobotCount.restype = ctypes.c_int
+lib.SIMGetObjectCount.argtypes = None # type: ignore
+lib.SIMGetObjectCount.restype = ctypes.c_int
+
+def SIMGetRobotCount():
+    return lib.SIMGetRobotCount()
+
+def SIMGetObjectCount():
+    return lib.SIMGetObjectCount()
